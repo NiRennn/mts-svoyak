@@ -1,0 +1,45 @@
+.Loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Loader__svg {
+
+  transform: rotate(-90deg);
+}
+
+.Loader__track,
+.Loader__progress {
+  fill: none;
+  stroke-width: 5;
+}
+
+.Loader__track {
+  stroke: #FFFFFF1A;
+}
+
+.Loader__progress {
+  stroke: #FFFFFF;
+  stroke-linecap: round;
+  // transition: stroke-dashoffset 0.03s linear;
+}
+
+.Loader__percent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "MTSWideMedium";
+
+  color: #FFFFFF;
+  font-size: 23px;
+  line-height: 35px;
+  letter-spacing: 0;
+  line-height: 1;
+}

@@ -1,0 +1,917 @@
+.game {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  padding: calc(
+      var(--tg-content-safe-area-inset-top, 0px) +
+        var(--tg-safe-area-inset-top, 0px) + 7px
+    )
+    calc(
+      var(--tg-content-safe-area-inset-right, 0px) +
+        var(--tg-safe-area-inset-right, 0px)
+    )
+    calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px)
+    )
+    calc(
+      var(--tg-content-safe-area-inset-left, 0px) +
+        var(--tg-safe-area-inset-left, 0px)
+    );
+}
+
+.game__content {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  // justify-content: space-between;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.game__board_wrap_logo-svoyak {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game__board_wrap_logo {
+  width: 41px;
+  height: 41px;
+}
+
+.game__board_wrap_svoyak {
+  width: 70%;
+  margin-bottom: -10px;
+}
+
+/* ==================== BUTTONS ==================== */
+.game__btn_red {
+  width: 100%;
+  height: 100%;
+  max-height: 106px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 42px 60px;
+  background-color: #ff0032;
+  border: 1px solid #ffffff;
+  border-radius: 70px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.game__btn_red_text {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 16px;
+  line-height: 55.08px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0px 4px 13.4px rgba(0, 0, 0, 0.25);
+}
+
+.game__btn_gray {
+  background-image: url("../../assets/images/btn-gray.png");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  border: none;
+  width: 100%;
+  padding: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.game__btn_gray_text {
+  font-family: "MTSUltraExtendedBlack";
+  font-size: 18px;
+  color: #000000;
+  text-transform: uppercase;
+  text-shadow: 0px 4px 13.4px rgba(0, 0, 0, 0.25);
+}
+
+.game__btn_pass {
+  width: 100%;
+  height: 100%;
+  max-height: 69px;
+  background: #0000001a;
+  background-color: #0000001a;
+  border: 1px solid #ffffff21;
+  border-radius: 70px;
+
+  // height: 52px;
+  padding: 17px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.game__btn_pass_title {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 16px;
+  // line-height: 55.08px;
+
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.game__btn_pass_sub {
+  font-family: "MTSUltraExtendedRegular";
+  font-size: 10px;
+  color: #ffffff;
+  opacity: 50%;
+  // line-height: 55.08px;
+  text-transform: uppercase;
+  text-align: start;
+}
+
+/* ==================== BOTTOM BAR ==================== */
+.game__bottom_bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 28px;
+  border-radius: 50px 50px 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+.game__bottom_user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.game__bottom_avatar {
+  width: 52px;
+  // height: 26px;
+}
+
+.game__bottom_points_wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.game__bottom_points_label {
+  font-family: "MTSSansMedium";
+  font-size: 12px;
+  color: #000000;
+  text-transform: uppercase;
+  line-height: 20px;
+}
+
+.game__bottom_points_val {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 22px;
+  color: #000000;
+  line-height: 20px;
+  text-transform: uppercase;
+}
+
+.game__bottom_progress {
+  width: 86px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ff0032;
+  border-radius: 50px;
+}
+
+.game__bottom_progress_text {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 14px;
+  color: #ffffff;
+  text-transform: uppercase;
+  line-height: 20px;
+}
+
+/* ==================== SCREEN 1: BOARD ==================== */
+.game__board_wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.game__board_card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 27px 28px 100px;
+  margin-bottom: -60px;
+
+  background: linear-gradient(
+    138.33deg,
+    rgba(243, 243, 243, 0.24) 0%,
+    rgba(243, 243, 243, 0.4) 68.83%
+  );
+  -webkit-backdrop-filter: blur(4.55px);
+  backdrop-filter: blur(4.55px);
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  position: relative;
+  z-index: 0;
+}
+
+.game__board_header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+  margin-bottom: 15px;
+}
+
+.game__board_round_title {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 26px;
+  line-height: 1;
+  color: #ffffff;
+  margin: 0;
+}
+
+.game__board_round_subtitle {
+  font-family: "MTSSansRegular";
+  font-size: 16px;
+  line-height: 16px;
+  color: #ffffffcc;
+}
+
+.game__board_rows {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 5px;
+  // padding: 0 11px;
+}
+
+.game__board_row {
+  background: #00000029;
+  -webkit-backdrop-filter: blur(7.4px);
+  backdrop-filter: blur(7.4px);
+  border: 1px solid #00000012;
+  border-radius: 20px;
+  padding: 9px 9px 10px 14px;
+  min-height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.game__board_topic_name {
+  font-family: "MTSSansMedium";
+  font-size: 14px;
+  line-height: 12px;
+  color: #ffffff;
+  flex: 1;
+  max-width: 90px;
+  word-break: break-word;
+}
+
+.game__board_values {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.game__board_val_btn {
+  width: 42px;
+  height: 53px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &--answered {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    cursor: default;
+
+    &:active {
+      transform: none;
+    }
+  }
+}
+
+.game__board_val_text {
+  font-family: "MTSSansMedium";
+  font-size: 14px;
+  line-height: 12px;
+  color: #ff0032;
+}
+
+/* ==================== SCREEN 2: QUESTION ==================== */
+.game__question_wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.game__question_timer_bar {
+  width: 100%;
+  height: 8px;
+  background: #00000026;
+  -webkit-backdrop-filter: blur(87.8px);
+  backdrop-filter: blur(87.8px);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.game__question_timer_fill {
+  height: 100%;
+  background: #ff0032;
+  transition: width 0.4s linear;
+}
+
+.game__question_top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+  gap: 8px;
+}
+
+.game__question_top_badge {
+  width: 100%;
+  border-radius: 30px;
+  background: #00000029;
+  -webkit-backdrop-filter: blur(87.8px);
+  backdrop-filter: blur(87.8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 25px;
+}
+
+.game__question_top_badge_theme-cost {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.game__question_top_badge_theme {
+  font-size: 14px;
+  line-height: 12px;
+  color: #ffffff;
+  font-family: "MTSSansMedium";
+}
+
+.game__question_top_badge_cost {
+  height: 35px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MTSSansMedium";
+  border-radius: 129px;
+  font-size: 14px;
+  line-height: 12px;
+  background-color: #ffffff;
+  color: #ff0032;
+  padding: 13px;
+}
+
+.game__question_top_badge_timer {
+  height: 52px;
+  width: 123px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #ff0032;
+  font-family: "MTSUltraExtendedBold";
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: 280px;
+}
+
+/////////////////////
+.game__question_card {
+  width: 100%;
+  flex: 1;
+
+  padding: 27px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: auto 0;
+
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &--answering {
+    justify-content: flex-start;
+    padding-top: 32px;
+  }
+}
+
+.game__question_host_wrap {
+  width: 105px;
+  height: 105px;
+  margin-bottom: 8px;
+}
+
+.game__question_host_img {
+  width: 45%;
+  max-height: 190px;
+  margin-bottom: 17px;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease,
+    margin-bottom 0.35s ease,
+    transform 0.3s ease;
+
+  &--hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+    overflow: hidden;
+  }
+}
+
+.game__question_text_wrapper {
+  width: 100%;
+  background: #ffffff;
+  -webkit-backdrop-filter: blur(9.1px);
+  backdrop-filter: blur(9.1px);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 45px 20px;
+}
+
+.game__question_text {
+  font-family: "MTSWideMedium";
+  font-size: 22px;
+  line-height: 22px;
+  color: #000000;
+  text-align: center;
+  max-width: 350px;
+  transition: all 0.3s ease;
+}
+
+.game__question_actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: questionFadeIn 0.3s ease;
+}
+
+.game__question_form {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  animation: questionFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 21px;
+}
+
+.game__question_input_wrap {
+  flex: 1;
+  min-width: 0;
+  height: 73px;
+  background: #ffffff17;
+  border-radius: 20px;
+  padding: 0 25px;
+  -webkit-backdrop-filter: blur(7.4px);
+  backdrop-filter: blur(7.4px);
+  border: 1px solid #00000012;
+  display: flex;
+  align-items: center;
+}
+
+.game__question_input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: "MTSSansMedium";
+  font-size: 20px;
+  line-height: 26px;
+
+  color: #ffffff;
+
+  &::placeholder {
+    color: #ffffff;
+    opacity: 20%;
+    font-size: 20px;
+    line-height: 26px;
+    font-family: "MTSWideMedium";
+  }
+}
+
+.game__question_submit_btn {
+  width: 73px;
+  height: 73px;
+  min-width: 73px;
+  border-radius: 20px;
+  background: #ff0032;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  -webkit-backdrop-filter: blur(7.4px);
+  backdrop-filter: blur(7.4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+@keyframes questionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== SCREENS: FINISHED ==================== */
+.game__finished_wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.game__finished_card {
+  width: 100%;
+  flex: 1;
+  padding: 24px 13px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: auto 0;
+}
+
+.game__finished_card_wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game__finished_host_img {
+  width: 30%;
+  margin-bottom: 25px;
+}
+
+.game__finished_host_img_check-cross {
+  width: 66px;
+  height: 66px;
+}
+
+.check-cross {
+  border-radius: 100px;
+  background: #0000001a;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 16px;
+}
+
+.game__finished_title {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 26px;
+  line-height: 28px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 13px;
+}
+
+.game__finished_subtitle {
+  font-family: "MTSSansRegular";
+  width: 100%;
+  max-width: 350px;
+
+  font-size: 16px;
+  line-height: 18px;
+  color: #ffffffcc;
+  text-align: center;
+}
+
+.game__finished_btns {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.game__finished_btn_red {
+  width: 100%;
+  max-width: 301px;
+  height: 69px;
+  border-radius: 70px;
+  border: 1px solid #ffffff;
+  background: #ff0032;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.game__finished_btn_red_text {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 16px;
+  line-height: 55.08px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.game__finished_btn_gray {
+  width: 100%;
+  max-width: 301px;
+  height: 69px;
+  border-radius: 70px;
+  border: 1px solid #ffffff21;
+  background: #ffffff12;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.game__finished_btn_gray_text {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 16px;
+  line-height: 55.08px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+/* ==================== MODAL RESULTS ==================== */
+.game__modal_overlay {
+  position: absolute;
+  inset: 0;
+  background: #0000001f;
+  -webkit-backdrop-filter: blur(44.2px);
+  backdrop-filter: blur(44.2px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 16px;
+  padding: calc(
+      var(--tg-content-safe-area-inset-top, 0px) +
+        var(--tg-safe-area-inset-top, 0px) + 7px
+    )
+    calc(
+      var(--tg-content-safe-area-inset-right, 0px) +
+        var(--tg-safe-area-inset-right, 0px)
+    )
+    calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 50px
+    )
+    calc(
+      var(--tg-content-safe-area-inset-left, 0px) +
+        var(--tg-safe-area-inset-left, 0px)
+    );
+  animation: modalFadeIn 0.25s ease;
+}
+
+.game__modal_host_wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 32;
+}
+
+.game__modal_host_img {
+  width: 100%;
+
+  // height: 100%;
+  // object-fit: contain;
+  position: absolute;
+  bottom: 0;
+  z-index: 31;
+}
+
+.game__modal_badge_wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 20px;
+  text-align: center;
+}
+
+.game__modal_title {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 32px;
+  line-height: 28px;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+}
+
+.game__modal_badge_wrap_img {
+  width: 35%;
+  margin-top: 20px;
+}
+
+.game__modal_points_pill {
+  font-family: "MTSUltraExtendedBlack";
+  font-size: 20px;
+  padding: 6px 20px;
+  border-radius: 20px;
+
+  &--plus {
+    background: #00c040;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 192, 64, 0.4);
+  }
+
+  &--minus {
+    background: #ff0032;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(255, 0, 50, 0.4);
+  }
+}
+
+.game__modal_desc {
+  font-family: "MTSWideMedium";
+  font-size: 16px;
+  line-height: 18px;
+  color: #ffffff99;
+  margin: 0;
+  max-width: 290px;
+}
+
+.game__modal_btn {
+  height: 100%;
+  width: 100%;
+  max-width: 301px;
+  max-height: 69px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #ff0032;
+  border: 1px solid #ffffff;
+  border-radius: 70px;
+  z-index: 31;
+}
+
+.game__modal_btn_text {
+  font-family: "MTSUltraExtendedBold";
+  font-size: 16px;
+  line-height: 55.08px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-height: 670px) {
+  .game__bottom_bar {
+    padding: 18px 17px;
+  }
+
+  .game__bottom_user {
+    gap: 9px;
+  }
+
+  .game__bottom_avatar {
+    width: 42px;
+  }
+
+  .game__bottom_points_label {
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .game__bottom_points_val {
+    font-size: 22px;
+    line-height: 20px;
+  }
+
+  .game__bottom_progress {
+    width: 76px;
+    height: 42px;
+  }
+
+  .game__bottom_progress_text {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .game__board_card {
+    padding: 16px 17px 50px;
+    margin-bottom: -50px;
+  }
+
+  .game__board_val_btn {
+    width: 36px;
+    height: 45px;
+    padding: 0;
+  }
+
+  .game__board_val_text {
+    font-size: 12px;
+    line-height: 12px;
+  }
+}
