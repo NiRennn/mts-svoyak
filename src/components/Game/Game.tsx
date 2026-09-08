@@ -16,7 +16,7 @@ import { submitRound } from "../../api/round";
 import valid from "../../assets/images/valid-kov.png";
 import invalid from "../../assets/images/invalid-kov.png";
 import timeHost from "../../assets/images/time-kov.png";
-import mod from "../../assets/images/mod-kov.png";
+// import mod from "../../assets/images/mod-kov.png";
 import roundHost1 from "../../assets/icons/round1.svg";
 import roundHost2 from "../../assets/icons/round1.svg";
 import roundpass from "../../assets/icons/game-check.svg";
@@ -241,9 +241,9 @@ function Game() {
     }
   };
 
-  const handleBackToMenu = () => {
-    navigate(appRoutes.MENU);
-  };
+  // const handleBackToMenu = () => {
+  //   navigate(appRoutes.MENU);
+  // };
   const handleGoToLeaderboard = () => {
     navigate(appRoutes.LEADERBOARD);
   };

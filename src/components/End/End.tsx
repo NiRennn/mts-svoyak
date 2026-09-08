@@ -1,14 +1,14 @@
 import "./End.scss";
 
 import mtsLogo from "../../assets/icons/mts-logo.svg";
-import win from "../../assets/icons/present.svg";
-import gray from "../../assets/icons/win-gray.svg";
+// import win from "../../assets/icons/present.svg";
+// import gray from "../../assets/icons/win-gray.svg";
 
-import { useAppStore } from "../../store/appStore";
+// import { useAppStore } from "../../store/appStore";
 
 function End() {
-  const user = useAppStore((state) => state.user);
-  const winners = useAppStore((state) => state.winners);
+  // const user = useAppStore((state) => state.user);
+  // const winners = useAppStore((state) => state.winners);
 
   //   const sortedWinners = [...winners].sort((a, b) => a.place - b.place);
 
@@ -24,17 +24,17 @@ function End() {
     window.open(vkUrl, "_blank", "noopener,noreferrer");
   };
 
-  const getWinnerUsername = (winner: (typeof winners)[number]) => {
-    if (winner.username) {
-      return `@${winner.username}`;
-    }
+  // const getWinnerUsername = (winner: (typeof winners)[number]) => {
+  //   if (winner.username) {
+  //     return `@${winner.username}`;
+  //   }
 
-    if (winner.first_name) {
-      return winner.first_name;
-    }
+  //   if (winner.first_name) {
+  //     return winner.first_name;
+  //   }
 
-    return `ID ${winner.user_id}`;
-  };
+  //   return `ID ${winner.user_id}`;
+  // };
 
   return (
     <div className="end">

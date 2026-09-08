@@ -9,7 +9,7 @@ import type { UserDto } from "../../store/appStore";
 import { preloadImageSrcs } from "../../utils/preload";
 import { APP_PRELOAD_IMAGES } from "../../data/preloadImages";
 
-import kov from "../../assets/images/loader-kov.png";
+// import kov from "../../assets/images/loader-kov.png";
 import svoyak from '../../assets/images/logo-top.png'
 
 import {

@@ -12,7 +12,7 @@ import lead from "../../assets/icons/leaderboard.svg";
 import kov from "../../assets/images/loader-kov.png";
 import logo from "../../assets/icons/mts-logo.svg";
 
-type MenuContentState = "game" | "all-found" | "finished";
+// type MenuContentState = "game" | "all-found" | "finished";
 
 const CHANNEL_URL = "https://t.me/eto_riil";
 
@@ -20,7 +20,8 @@ function Menu() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const menuContentState = "game";
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, ] = useState(false);
 
   // Rules Modal State
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
