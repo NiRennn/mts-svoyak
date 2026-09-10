@@ -202,18 +202,25 @@ export const useAppStore = create<AppState>((set) => ({
     const qualifyThreshold = data.qualify_threshold ?? 3000;
     const bestPoints = data.best_points ?? 0;
     const attemptPoints = data.attempt?.total_points ?? 0;
+    const answeredCount =
+      data.answered_question_ids?.length ??
+      data.attempt?.answered_count ??
+      0;
+    const isAttemptFinished =
+      Boolean(data.attempt?.is_finished) || answeredCount >= 75;
+    const serverCanPlay = data.can_play ?? true;
 
+    // The user is only finished & qualified if they reached 3000+ points AND
+    // either this attempt is finished or they have no plays left.
     const isQualifiedUser =
-      bestPoints >= qualifyThreshold ||
-      (attemptPoints >= qualifyThreshold &&
-        (Boolean(data.attempt?.is_finished) ||
-          (data.answered_question_ids?.length ?? 0) >= 75)) ||
-      (data.can_play === false &&
+      (isAttemptFinished &&
+        (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold)) ||
+      (!serverCanPlay &&
         Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
 
     set({
       user,
-      can_play: isQualifiedUser ? false : (data.can_play ?? true),
+      can_play: isQualifiedUser ? false : serverCanPlay,
       has_qualified: isQualifiedUser,
       attempts_played: data.attempts_played ?? 0,
       max_attempts: data.max_attempts ?? 2,

@@ -65,9 +65,16 @@ function Game() {
   const setCanPlay = useAppStore((state) => state.setCanPlay);
   const setHasQualified = useAppStore((state) => state.setHasQualified);
 
-  const isAlreadyQualifiedUser =
+  const answeredCount =
+    storeAnsweredIds?.length ?? attempt?.answered_count ?? 0;
+  const isAttemptFinished =
+    Boolean(attempt?.is_finished) || answeredCount >= 75;
+
+  const isQualifiedAndFinished =
     hasQualified ||
-    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    (isAttemptFinished &&
+      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
+        (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
     (!canPlay &&
       Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
         (qualifyThreshold || 3000));
@@ -105,11 +112,7 @@ function Game() {
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [screen, setScreen] = useState<GameScreen>(() => {
-    if (
-      isAlreadyQualifiedUser ||
-      !canPlay ||
-      (attempt?.is_finished && (storeAnsweredIds?.length ?? 0) >= 75)
-    ) {
+    if (isQualifiedAndFinished || (!canPlay && isAttemptFinished)) {
       return "game-finished";
     }
     return "board";
@@ -605,15 +608,14 @@ function Game() {
   };
 
   const isQualified =
-    isAlreadyQualifiedUser ||
-    Boolean(lastSubmitResponse?.qualified) ||
-    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
-    (Boolean(attempt?.is_finished) && totalScore >= (qualifyThreshold || 3000)) ||
-    (totalScore >= (qualifyThreshold || 3000) && screen === "game-finished");
+    (screen === "game-finished" || isQualifiedAndFinished) &&
+    (totalScore >= (qualifyThreshold || 3000) ||
+      (bestPoints ?? 0) >= (qualifyThreshold || 3000) ||
+      Boolean(lastSubmitResponse?.qualified));
 
   const finishedScore =
     bestPoints !== null && bestPoints !== undefined && bestPoints > 0
-      ? bestPoints
+      ? Math.max(bestPoints, totalScore)
       : totalScore;
 
   useEffect(() => {

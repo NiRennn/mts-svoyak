@@ -35,16 +35,20 @@ function Loading() {
     const qualifyThreshold = userData.qualify_threshold ?? 3000;
     const bestPoints = userData.best_points ?? 0;
     const attemptPoints = userData.attempt?.total_points ?? 0;
+    const answeredCount =
+      userData.answered_question_ids?.length ??
+      userData.attempt?.answered_count ??
+      0;
+    const isAttemptFinished =
+      Boolean(userData.attempt?.is_finished) || answeredCount >= 75;
+    const serverCanPlay = userData.can_play ?? true;
 
-    const isQualifiedUser =
-      bestPoints >= qualifyThreshold ||
-      (attemptPoints >= qualifyThreshold &&
-        (Boolean(userData.attempt?.is_finished) ||
-          (userData.answered_question_ids?.length ?? 0) >= 75)) ||
-      (userData.can_play === false &&
-        Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
+    const isQualifiedAndFinished =
+      (isAttemptFinished &&
+        (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold)) ||
+      (!serverCanPlay && Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
 
-    if (isQualifiedUser) {
+    if (isQualifiedAndFinished) {
       return appRoutes.GAME;
     }
 

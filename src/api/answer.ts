@@ -68,10 +68,12 @@ export const submitAnswer = async (
     });
   }
 
+  const isFinished = Boolean(data.attempt_finished);
   if (
-    data.qualified ||
-    ((data.best_points ?? 0) >= (data.qualify_threshold || 3000)) ||
-    (data.attempt_points >= (data.qualify_threshold || 3000) && data.attempt_finished)
+    isFinished &&
+    (data.qualified ||
+      ((data.best_points ?? 0) >= (data.qualify_threshold || 3000)) ||
+      data.attempt_points >= (data.qualify_threshold || 3000))
   ) {
     state.setCanPlay(false);
     state.setHasQualified(true);

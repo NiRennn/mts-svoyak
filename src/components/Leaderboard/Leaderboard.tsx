@@ -26,11 +26,16 @@ function Leaderboard() {
   const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
   const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
 
+  const answeredCount =
+    storeAnsweredIds?.length ?? attempt?.answered_count ?? 0;
+  const isAttemptFinished =
+    Boolean(attempt?.is_finished) || answeredCount >= 75;
+
   const isQualifiedUser =
     hasQualified ||
-    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
-    ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) &&
-      (Boolean(attempt?.is_finished) || (storeAnsweredIds?.length ?? 0) >= 75)) ||
+    (isAttemptFinished &&
+      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
+        (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
     (!canPlay &&
       Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
         (qualifyThreshold || 3000));
