@@ -16,7 +16,7 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.ready();
     navigate(appRoutes.LOADDING, { replace: true });
   }, []);
 

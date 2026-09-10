@@ -68,17 +68,17 @@ function Sub() {
         <div className="sub__mid_wrapper">
           <div className="sub__mid">
             <img src={subLogo} alt="" className="sub__mid_logo" />
-            <h1 className="sub__mid_h">Подпишись на наш канал</h1>
+            <h1 className="sub__mid_h">Подпишись на&nbsp;наш канал</h1>
             <p className="sub__mid_p">
               Игра доступна подписчикам Telegram-канала РИИЛ МТС. Проверим
-              подписку и сразу откроем игровое поле.
+              подписку и&nbsp;сразу откроем игровое поле.
             </p>
           </div>
         </div>
 
         <div className="sub__btn_block">
           <button className="sub__btn_red" onClick={handleOpenChannel}>
-            <span className="sub__btn_red_text">Перейти в канал</span>
+            <span className="sub__btn_red_text">Перейти в&nbsp;канал</span>
           </button>
           <button
             className="sub__btn_gray"
@@ -114,11 +114,11 @@ function Sub() {
               <div className="sub__notfound_bottom">
                 <div className="sub__notfound_bottom_text-block">
                   <h1 className="sub__notfound_bottom_h">
-                    Подписка не найдена!
+                    Подписка не&nbsp;найдена!
                   </h1>
                   <p className="sub__notfound_bottom_p">
-                    Мы не смогли найти вашу подписку на канал МТС РИИЛ Повторите
-                    попытку еще раз!
+                    Мы&nbsp;не&nbsp;смогли найти вашу подписку на&nbsp;канал МТС&nbsp;РИИЛ. Повторите
+                    попытку еще&nbsp;раз!
                   </p>
                 </div>
 

@@ -47,13 +47,13 @@ function End() {
         <div className="end__content_bot">
           <div className="end__content_mid">
             <h1 className="end__content_mid_title">
-              Игра завершена – подводим итоги и поздравляем победителей!
+              Игра завершена&nbsp;— подводим итоги и&nbsp;поздравляем победителей!
             </h1>
             <p className="end__content_mid_subtitle">
-              Если ты нашел себя в списке призеров, напиши нам в личные
-              сообщения сообщества МТС в ВК. Укажи свое ФИО и название приза —
-              мы свяжемся с тобой и расскажем, как его получить. Спасибо
-              за участие!
+              Если ты&nbsp;нашел себя в&nbsp;списке призеров, напиши нам в&nbsp;личные
+              сообщения сообщества МТС в&nbsp;ВК. Укажи свое ФИО и&nbsp;название приза&nbsp;—
+              мы&nbsp;свяжемся с&nbsp;тобой и&nbsp;расскажем, как&nbsp;его получить. Спасибо
+              за&nbsp;участие!
             </p>
             <button
               onClick={handleWinnerClick}
@@ -110,7 +110,7 @@ function End() {
 
             {!sortedWinners.length && (
               <p className="end__content_bot_empty">
-                Победители пока не найдены
+                Победители пока не&nbsp;найдены
               </p>
             )}
           </div>

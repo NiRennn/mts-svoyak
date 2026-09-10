@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
 import { useAppStore } from "../../store/appStore";
 import { acceptRules } from "../../api/rules";
+import { formatNbsp } from "../../utils/typography";
 
 import prize from "../../assets/images/prize.png";
 import closeIcon from "../../assets/icons/close.svg";
@@ -165,11 +166,11 @@ function Info() {
           <div className="info__main_top">
             <div className="info__main_top_left">
               <h1 className="info__main_top_header">
-                Отвечайте верно и выигрывайте призы!
+                Отвечайте верно и&nbsp;выигрывайте призы!
               </h1>
               <span className="info__main_top_text">
-                с 00 по 00 сентября, наберите больше 3000 очков, отвечая на
-                вопросы своей игры, и участвуйте в розыгрыше
+                с&nbsp;00 по&nbsp;00&nbsp;сентября, наберите больше 3000&nbsp;очков, отвечая на&nbsp;вопросы
+                своей игры, и&nbsp;участвуйте в&nbsp;розыгрыше
               </span>
             </div>
             <img src={chelik} alt="" className="info__main_top_right" />
@@ -177,7 +178,7 @@ function Info() {
           <div className="info__main_bubbles">
             <div className="bubble wh">
               <span className="info__main_bubbles_blacktext">
-                Подпишитесь на канал МТС РИИЛ
+                Подпишитесь на&nbsp;канал МТС&nbsp;РИИЛ
               </span>
               <span className="bubble_back-wh">#1</span>
               <button
@@ -189,14 +190,14 @@ function Info() {
             </div>
             <div className="bubble re">
               <span className="info__main_bubbles_whitetext">
-                Наберите больше 3000 очков, отвечая на вопросы правильно
+                Наберите больше 3000&nbsp;очков, отвечая на&nbsp;вопросы правильно
               </span>
               <span className="bubble_back-re">#2</span>
 
             </div>
             <div className="bubble bl">
               <span className="info__main_bubbles_whitetext">
-                00 сентября подведем итоги в приложении и выберем 10 победителей
+                00&nbsp;сентября подведем итоги в&nbsp;приложении и&nbsp;выберем 10&nbsp;победителей
               </span>
               <span className="bubble_back-bl">#3</span>
 
@@ -263,7 +264,7 @@ function Info() {
                     onClick={() => handleToggleFaq(item.id)}
                     aria-expanded={isOpened}
                   >
-                    <span>{item.title}</span>
+                    <span>{formatNbsp(item.title)}</span>
                     <span className="info__faq_icon">
                       {isOpened ? "−" : "+"}
                     </span>
@@ -273,7 +274,7 @@ function Info() {
                     <p className="info__faq_text">
                       {item.text.split("\n").map((line, index) => (
                         <span key={index}>
-                          {line}
+                          {formatNbsp(line)}
                           <br />
                         </span>
                       ))}
@@ -319,8 +320,8 @@ function Info() {
             <h2 className="menu_rules_modal__title">Правила</h2>
 
             <p className="menu_rules_modal__desc">
-              Отвечайте на вопросы и зарабатывайте очки, наберите больше 3000
-              очков и участвуйте в розыгрыше
+              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите больше 3000&nbsp;очков
+              и&nbsp;участвуйте в&nbsp;розыгрыше
             </p>
 
             <div className="menu_rules_modal__checkbox_row">
@@ -342,7 +343,7 @@ function Info() {
                 </svg>
               </button>
               <span className="menu_rules_modal__checkbox_label">
-                Я ознакомился и соглашаюсь с{" "}
+                Я&nbsp;ознакомился и&nbsp;соглашаюсь с&nbsp;
                 <a
                   href="https://ya.ru/"
                   target="_blank"

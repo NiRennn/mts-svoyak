@@ -14,6 +14,7 @@ import type { ThemeDto } from "../../store/appStore";
 import { submitAnswer } from "../../api/answer";
 import type { SubmitAnswerResponse } from "../../api/answer";
 import { fetchAndHydrateUserData } from "../../api/userData";
+import { formatNbsp } from "../../utils/typography";
 
 // Images
 import valid from "../../assets/images/valid-kov.png";
@@ -675,7 +676,7 @@ function Game() {
               <div className="game__board_header">
                 <h2 className="game__board_round_title">Раунд {round}</h2>
                 <div className="game__board_round_subtitle">
-                  <p>Выберите тему и стоимость</p>
+                  <p>Выберите тему и&nbsp;стоимость</p>
                 </div>
               </div>
 
@@ -683,7 +684,7 @@ function Game() {
               <div className="game__board_rows">
                 {topicGroups.map((group) => (
                   <div key={group.topic} className="game__board_row">
-                    <div className="game__board_topic_name">{group.topic}</div>
+                    <div className="game__board_topic_name">{formatNbsp(group.topic)}</div>
 
                     <div className="game__board_values">
                       {group.questions.map((q) => {
@@ -722,14 +723,14 @@ function Game() {
               <div className="game__question_top_badge">
                 <div className="game__question_top_badge_theme-cost">
                   <span className="game__question_top_badge_theme">
-                    {activeQuestion.topic}
+                    {formatNbsp(activeQuestion.topic)}
                   </span>
                   <div className="game__question_top_badge_cost">
                     {activeQuestion.value}
                   </div>
                 </div>
                 <div className="game__question_top_badge_timer">
-                  <span className="game__question_timer_text">{timer} сек</span>
+                  <span className="game__question_timer_text">{timer}&nbsp;сек</span>
                 </div>
               </div>
               <div className="game__question_timer_bar">
@@ -750,7 +751,7 @@ function Game() {
             >
               <div></div>
               <div className="game__question_text_wrapper">
-                <p className="game__question_text">{activeQuestion.question}</p>
+                <p className="game__question_text">{formatNbsp(activeQuestion.question)}</p>
               </div>
 
               {isInputActive ? (
@@ -813,7 +814,7 @@ function Game() {
                     disabled={isSubmitting}
                   >
                     <span className="game__btn_pass_title">Пасануть</span>
-                    <span className="game__btn_pass_sub">Баллы не спишем</span>
+                    <span className="game__btn_pass_sub">Баллы не&nbsp;спишем</span>
                   </button>
                 </div>
               )}
@@ -830,14 +831,14 @@ function Game() {
               <div className="game__question_top_badge">
                 <div className="game__question_top_badge_theme-cost">
                   <span className="game__question_top_badge_theme">
-                    {activeQuestion.topic}
+                    {formatNbsp(activeQuestion.topic)}
                   </span>
                   <div className="game__question_top_badge_cost">
                     {activeQuestion.value}
                   </div>
                 </div>
                 <div className="game__question_top_badge_timer">
-                  <span className="game__question_timer_text">{timer} сек</span>
+                  <span className="game__question_timer_text">{timer}&nbsp;сек</span>
                 </div>
               </div>
               <div className="game__question_timer_bar">
@@ -861,7 +862,7 @@ function Game() {
 
               <div className="game__modifier_card">
                 <p className="game__modifier_card_text">Попался модификатор</p>
-                <p className="game__modifier_card_text">рискуем или ну его?</p>
+                <p className="game__modifier_card_text">рискуем или ну&nbsp;его?</p>
               </div>
 
               <div className="game__modifier_actions">
@@ -884,7 +885,7 @@ function Game() {
                     Пасануть
                   </span>
                   <span className="game__modifier_btn_pass_sub">
-                    Баллы не спишем
+                    Баллы не&nbsp;спишем
                   </span>
                 </button>
               </div>
@@ -963,8 +964,8 @@ function Game() {
                 </h1>
                 <p className="game__finished_subtitle">
                   {isQualified
-                    ? `Вы прошли все темы и набрали  ${finishedScore} очков\nтеперь вы участвуете в розыгрыше призов\nот МТС РИИЛ`
-                    : "Вы прошли все темы но не набрали 3000 очков для участия в розыгрыше вы можете повторить попытку еще раз"}
+                    ? `Вы\u00A0прошли все темы и\u00A0набрали  ${finishedScore}\u00A0очков\nтеперь вы\u00A0участвуете в\u00A0розыгрыше призов\nот\u00A0МТС\u00A0РИИЛ`
+                    : "Вы\u00A0прошли все темы, но\u00A0не\u00A0набрали 3000\u00A0очков для\u00A0участия в\u00A0розыгрыше, вы\u00A0можете повторить попытку еще\u00A0раз"}
                 </p>
               </div>
 
@@ -982,7 +983,7 @@ function Game() {
                         className="game__finished_btn_white_img"
                       />
                       <span className="game__finished_btn_white_text">
-                        О конкурсе
+                        О&nbsp;конкурсе
                       </span>
                     </button>
 
@@ -1027,7 +1028,7 @@ function Game() {
                     onClick={handleGoToInfo}
                   >
                     <span className="game__finished_btn_gray_text">
-                      О розыгрыше
+                      О&nbsp;розыгрыше
                     </span>
                   </button>
                 </div>
@@ -1048,7 +1049,7 @@ function Game() {
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Верно!</h2>
                     <p className="game__modal_desc">
-                      Поздравляю, ты явно умнее одного постоянного гостя шоу!
+                      Поздравляю, ты&nbsp;явно умнее одного постоянного гостя шоу!
                     </p>
                     <div className="game__modal_pill_badge game__modal_pill_badge--plus">
                       <span className="game__modal_pill_badge_text">
@@ -1125,8 +1126,7 @@ function Game() {
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Время кончилось</h2>
                     <p className="game__modal_desc">
-                      Но похоже тебе нравится куртка ведущего, так что очки не
-                      списываем
+                      Но&nbsp;похоже тебе нравится куртка ведущего, так что очки не&nbsp;списываем
                     </p>
                   </div>
                   <img
@@ -1168,10 +1168,10 @@ function Game() {
                   </h2>
                   <div className="game__modal_modifier_desc">
                     <p className="game__modal_modifier_desc_p">
-                      На счет прилетело {Math.abs(modifierPoints)} бонусных
-                      балов
+                      На&nbsp;счет прилетело {Math.abs(modifierPoints)}&nbsp;бонусных
+                      баллов
                     </p>
-                    <p className="game__modal_modifier_desc_p">круто же?</p>
+                    <p className="game__modal_modifier_desc_p">круто&nbsp;же?</p>
                   </div>
                 </div>
 
@@ -1210,10 +1210,10 @@ function Game() {
                   </h2>
                   <div className="game__modal_modifier_desc">
                     <p className="game__modal_modifier_desc_p">
-                      К успеху шли, но не дошли!
+                      К&nbsp;успеху шли, но&nbsp;не&nbsp;дошли!
                     </p>
                     <p className="game__modal_modifier_desc_p">
-                      повезет в другой раз, на этот раз минус
+                      повезет в&nbsp;другой раз, на&nbsp;этот раз минус
                     </p>
                   </div>
                 </div>

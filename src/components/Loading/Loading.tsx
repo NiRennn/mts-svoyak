@@ -80,7 +80,7 @@ function Loading() {
     const initData = getTelegramInitData();
     // (window as any).__uid = effectiveUserId ?? null;
 
-    // console.log(initData)
+    console.log(initData)
 
     if (!effectiveUserId) {
       console.error("effectiveUserId not found");

@@ -106,7 +106,7 @@ function Leaderboard() {
               className="leaderboards__main_info_left_icon"
             />
             <span className="leaderboards__main_info_left_text">
-              Наберите больше {data?.threshold ?? 3000} очков чтобы принять
+              Наберите больше {data?.threshold ?? 3000}&nbsp;очков, чтобы принять
               участие в&nbsp;розыгрыше
             </span>
           </div>

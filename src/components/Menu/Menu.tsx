@@ -180,8 +180,8 @@ function Menu() {
             <h2 className="menu_rules_modal__title">Правила</h2>
 
             <p className="menu_rules_modal__desc">
-              Отвечайте на вопросы и зарабатывайте очки, наберите больше 3000
-              очков и участвуйте в розыгрыше
+              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите больше 3000&nbsp;очков
+              и&nbsp;участвуйте в&nbsp;розыгрыше
             </p>
 
             <div className="menu_rules_modal__checkbox_row">
@@ -203,7 +203,7 @@ function Menu() {
                 </svg>
               </button>
               <span className="menu_rules_modal__checkbox_label">
-                Я ознакомился и соглашаюсь с{" "}
+                Я&nbsp;ознакомился и&nbsp;соглашаюсь с&nbsp;
                 <a
                   href="https://ya.ru/"
                   target="_blank"
