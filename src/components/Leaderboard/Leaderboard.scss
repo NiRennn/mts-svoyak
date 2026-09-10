@@ -7,6 +7,7 @@
   align-items: center;
   gap: 20px;
   overflow: hidden;
+  animation: pageFadeIn 0.45s ease-out;
 
   padding: calc(
       var(--tg-content-safe-area-inset-top, 0px) +
@@ -27,6 +28,7 @@
   width: 41px;
   height: 41px;
   flex-shrink: 0;
+  animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .leaderboards__main {
@@ -36,6 +38,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: 0.1s;
   background: linear-gradient(
     180deg,
     #FFFFFF99 0%,
@@ -45,6 +49,7 @@
   // backdrop-filter: blur(10px);
   border: 3px solid #ffffff33;
   border-bottom: none;
+  background-clip: padding-box;
   border-radius: 40px 40px 0 0;
   padding: 24px 16px 0;
 }
@@ -109,6 +114,13 @@
   justify-content: space-between;
   padding: 9px 12px 9px 13px;
   margin-bottom: 6px;
+  animation: itemFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: 0.12s;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
 
   .leaderboards__item_score_pill {
     background: #FF0032;
@@ -150,9 +162,19 @@
   justify-content: space-between;
   padding: 9px 12px 9px 13px;
   flex-shrink: 0;
-  transition: background-color 0.2s ease;
+  animation: itemFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
 
+  &:active {
+    transform: scale(0.985);
+    background-color: rgba(255, 255, 255, 0.12);
+  }
 
+  @for $i from 1 through 15 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.035 + 0.15}s;
+    }
+  }
 }
 
 .leaderboards__item_left {

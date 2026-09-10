@@ -1,4 +1,4 @@
-﻿import "./Leaderboard.scss";
+import "./Leaderboard.scss";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
@@ -19,6 +19,22 @@ function Leaderboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hasQualified = useAppStore((state) => state.has_qualified);
+  const canPlay = useAppStore((state) => state.can_play);
+  const attempt = useAppStore((state) => state.attempt);
+  const bestPoints = useAppStore((state) => state.best_points);
+  const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
+  const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
+
+  const isQualifiedUser =
+    hasQualified ||
+    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) &&
+      (Boolean(attempt?.is_finished) || (storeAnsweredIds?.length ?? 0) >= 75)) ||
+    (!canPlay &&
+      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
+        (qualifyThreshold || 3000));
+
   // Telegram BackButton support
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
@@ -27,7 +43,9 @@ function Leaderboard() {
     if (!backButton) return;
 
     const handleTelegramBack = () => {
-      navigate(appRoutes.MENU, { replace: true });
+      navigate(isQualifiedUser ? appRoutes.GAME : appRoutes.MENU, {
+        replace: true,
+      });
     };
 
     backButton.show();
@@ -37,7 +55,7 @@ function Leaderboard() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [navigate]);
+  }, [navigate, isQualifiedUser]);
 
   // Fetch leaderboard data
   useEffect(() => {

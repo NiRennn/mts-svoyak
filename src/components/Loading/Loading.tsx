@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchAndHydrateUserData } from "../../api/userData";
 import logo from "../../assets/icons/mts-logo.svg";
 import Loader from "../Loader/Loader";
-import type { UserDto } from "../../store/appStore";
+import type { GetUserDataResponse } from "../../store/appStore";
 import { preloadImageSrcs } from "../../utils/preload";
 import { APP_PRELOAD_IMAGES } from "../../data/preloadImages";
 
@@ -27,8 +27,28 @@ const delay = (ms: number) =>
 function Loading() {
   const navigate = useNavigate();
 
-  const pickNextRoute = (user: UserDto | null) => {
-    if (user?.subs) {
+  const pickNextRoute = (userData: GetUserDataResponse) => {
+    if (Array.isArray(userData.winners) && userData.winners.length > 0) {
+      return appRoutes.END;
+    }
+
+    const qualifyThreshold = userData.qualify_threshold ?? 3000;
+    const bestPoints = userData.best_points ?? 0;
+    const attemptPoints = userData.attempt?.total_points ?? 0;
+
+    const isQualifiedUser =
+      bestPoints >= qualifyThreshold ||
+      (attemptPoints >= qualifyThreshold &&
+        (Boolean(userData.attempt?.is_finished) ||
+          (userData.answered_question_ids?.length ?? 0) >= 75)) ||
+      (userData.can_play === false &&
+        Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
+
+    if (isQualifiedUser) {
+      return appRoutes.GAME;
+    }
+
+    if (userData.user?.subs) {
       return appRoutes.MENU;
     }
 
@@ -147,7 +167,7 @@ function Loading() {
         return;
       }
 
-      go(pickNextRoute(userData.user));
+      go(pickNextRoute(userData));
     };
 
     init();

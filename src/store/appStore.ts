@@ -1,4 +1,4 @@
-﻿import { create } from "zustand";
+import { create } from "zustand";
 
 export type UserDto = {
   tg_id: number;
@@ -17,8 +17,14 @@ export type QuestionDto = {
   id: number;
   cost?: number;
   value?: number;
+  is_modifier?: boolean;
+  modifier_value?: number;
   question?: string;
   text?: string;
+  correct_answer?: string;
+  synonyms?: string[];
+  timer_sec?: number;
+  comment?: string;
   [key: string]: any;
 };
 
@@ -33,24 +39,33 @@ export type ThemeDto = {
 export type AttemptDto = {
   attempt_no: number;
   answer_set: string;
-  rounds_done: number;
-  next_round: number;
+  rounds_done?: number;
+  next_round?: number;
   total_points: number;
+  answered_count?: number;
+  cells_total?: number;
   is_finished: boolean;
 };
 
 export type WinnerDto = {
+  place: number;
+  prize: string;
+  tg_id: number;
   user_id?: number;
-  tg_id?: number;
   username: string | null;
   first_name: string | null;
 };
 
 export type GetUserDataResponse = {
   user: UserDto | null;
+  can_play?: boolean;
+  attempts_played?: number;
+  max_attempts?: number;
+  best_points?: number | null;
   attempt?: AttemptDto | null;
-  last_round?: any;
+  answered_question_ids?: number[];
   qualify_threshold?: number;
+  last_round?: any;
   rounds?: any[];
   themes?: ThemeDto[];
   winners?: WinnerDto[];
@@ -58,18 +73,30 @@ export type GetUserDataResponse = {
 
 type AppState = {
   user: UserDto | null;
+  can_play: boolean;
+  attempts_played: number;
+  max_attempts: number;
+  best_points: number | null;
   attempt: AttemptDto | null;
+  answered_question_ids: number[];
   last_round: any;
   qualify_threshold: number;
   rounds: any[];
   themes: ThemeDto[];
   winners: WinnerDto[];
+  has_qualified: boolean;
   isHydrated: boolean;
 
   setUser: (user: UserDto | null) => void;
   setUserSubs: (subs: boolean) => void;
   setUserRulesAccepted: (rulesAccepted: boolean) => void;
   setUserRule: (rule: boolean) => void;
+
+  setCanPlay: (canPlay: boolean) => void;
+  setHasQualified: (hasQualified: boolean) => void;
+  setBestPoints: (bestPoints: number | null) => void;
+  setAnsweredQuestionIds: (ids: number[]) => void;
+  addAnsweredQuestionId: (id: number) => void;
 
   setAttempt: (attempt: AttemptDto | null) => void;
   setThemes: (themes: ThemeDto[]) => void;
@@ -82,9 +109,15 @@ type AppState = {
 
 const initialState = {
   user: null,
+  can_play: true,
+  has_qualified: false,
+  attempts_played: 0,
+  max_attempts: 2,
+  best_points: null,
   attempt: null,
+  answered_question_ids: [],
   last_round: null,
-  qualify_threshold: 3500,
+  qualify_threshold: 3000,
   rounds: [],
   themes: [],
   winners: [],
@@ -128,6 +161,22 @@ export const useAppStore = create<AppState>((set) => ({
         : null,
     })),
 
+  setCanPlay: (can_play) => set({ can_play }),
+
+  setHasQualified: (has_qualified) => set({ has_qualified }),
+
+  setBestPoints: (best_points) => set({ best_points }),
+
+  setAnsweredQuestionIds: (answered_question_ids) =>
+    set({ answered_question_ids }),
+
+  addAnsweredQuestionId: (id) =>
+    set((state) => ({
+      answered_question_ids: state.answered_question_ids.includes(id)
+        ? state.answered_question_ids
+        : [...state.answered_question_ids, id],
+    })),
+
   setAttempt: (attempt) => set({ attempt }),
 
   setThemes: (themes) => set({ themes }),
@@ -144,11 +193,37 @@ export const useAppStore = create<AppState>((set) => ({
         }
       : null;
 
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.removeItem("user_game_qualified");
+      } catch (e) {}
+    }
+
+    const qualifyThreshold = data.qualify_threshold ?? 3000;
+    const bestPoints = data.best_points ?? 0;
+    const attemptPoints = data.attempt?.total_points ?? 0;
+
+    const isQualifiedUser =
+      bestPoints >= qualifyThreshold ||
+      (attemptPoints >= qualifyThreshold &&
+        (Boolean(data.attempt?.is_finished) ||
+          (data.answered_question_ids?.length ?? 0) >= 75)) ||
+      (data.can_play === false &&
+        Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
+
     set({
       user,
+      can_play: isQualifiedUser ? false : (data.can_play ?? true),
+      has_qualified: isQualifiedUser,
+      attempts_played: data.attempts_played ?? 0,
+      max_attempts: data.max_attempts ?? 2,
+      best_points: data.best_points ?? null,
       attempt: data.attempt ?? null,
+      answered_question_ids: Array.isArray(data.answered_question_ids)
+        ? data.answered_question_ids
+        : [],
       last_round: data.last_round ?? null,
-      qualify_threshold: data.qualify_threshold ?? 3500,
+      qualify_threshold: data.qualify_threshold ?? 3000,
       rounds: Array.isArray(data.rounds) ? data.rounds : [],
       themes: Array.isArray(data.themes) ? data.themes : [],
       winners: Array.isArray(data.winners) ? data.winners : [],

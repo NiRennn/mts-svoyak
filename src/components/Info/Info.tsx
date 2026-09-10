@@ -1,4 +1,4 @@
-﻿import "./Info.scss";
+import "./Info.scss";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
@@ -70,6 +70,22 @@ function Info() {
   const [isAgreed, setIsAgreed] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
 
+  const hasQualified = useAppStore((state) => state.has_qualified);
+  const canPlay = useAppStore((state) => state.can_play);
+  const attempt = useAppStore((state) => state.attempt);
+  const bestPoints = useAppStore((state) => state.best_points);
+  const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
+  const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
+
+  const isQualifiedUser =
+    hasQualified ||
+    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) &&
+      (Boolean(attempt?.is_finished) || (storeAnsweredIds?.length ?? 0) >= 75)) ||
+    (!canPlay &&
+      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
+        (qualifyThreshold || 3000));
+
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
     const backButton = tg?.BackButton;
@@ -77,7 +93,9 @@ function Info() {
     if (!backButton) return;
 
     const handleTelegramBack = () => {
-      navigate(appRoutes.MENU, { replace: true });
+      navigate(isQualifiedUser ? appRoutes.GAME : appRoutes.MENU, {
+        replace: true,
+      });
     };
 
     backButton.show();
@@ -87,7 +105,7 @@ function Info() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [navigate]);
+  }, [navigate, isQualifiedUser]);
 
   const handleToggleFaq = (id: number) => {
     setOpenedFaqId((prev) => (prev === id ? 0 : id));
@@ -140,7 +158,7 @@ function Info() {
     <div className="info">
       <div className="info__scroll">
         <div className="info__logo_wrapper">
-          <img src={logo} alt="" />
+          <img src={logo} alt="" className="info__logo_mts"/>
           <img src={infoLogo} alt="" className="info__logo" />
         </div>
         <div className="info__main">
@@ -162,7 +180,12 @@ function Info() {
                 Подпишитесь на канал МТС РИИЛ
               </span>
               <span className="bubble_back-wh">#1</span>
-              <button className="info__main_bubbles_redbtn">Подписаться</button>
+              <button
+                className="info__main_bubbles_redbtn"
+                onClick={handleOpenRiil}
+              >
+                Подписаться
+              </button>
             </div>
             <div className="bubble re">
               <span className="info__main_bubbles_whitetext">
@@ -210,11 +233,13 @@ function Info() {
                 </div>
               ))}
             </div>
-            <div className="info__btn_red_wrapper">
-              <button className="info__btn_red" onClick={handleStartGameClick}>
-                <span className="info__btn_red_text">Начать игру</span>
-              </button>
-            </div>
+            {!isQualifiedUser && (
+              <div className="info__btn_red_wrapper">
+                <button className="info__btn_red" onClick={handleStartGameClick}>
+                  <span className="info__btn_red_text">Начать игру</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

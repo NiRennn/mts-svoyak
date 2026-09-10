@@ -1,9 +1,12 @@
-﻿export interface Question {
+export interface Question {
   id: number;
   topic: string;
   value: number;
   question: string;
   correctAnswers: string[];
+  is_modifier?: boolean;
+  modifier_value?: number;
+  timer_sec?: number;
 }
 
 export interface TopicGroup {

@@ -10,64 +10,118 @@ import {
 } from "../../data/questions";
 import type { Question, TopicGroup } from "../../data/questions";
 import { useAppStore } from "../../store/appStore";
-import { submitRound } from "../../api/round";
+import type { ThemeDto } from "../../store/appStore";
+import { submitAnswer } from "../../api/answer";
+import type { SubmitAnswerResponse } from "../../api/answer";
+import { fetchAndHydrateUserData } from "../../api/userData";
 
 // Images
 import valid from "../../assets/images/valid-kov.png";
 import invalid from "../../assets/images/invalid-kov.png";
 import timeHost from "../../assets/images/time-kov.png";
-// import mod from "../../assets/images/mod-kov.png";
+import modHost from "../../assets/images/mod-kov.png";
 import roundHost1 from "../../assets/icons/round1.svg";
-import roundHost2 from "../../assets/icons/round1.svg";
+import roundHost2 from "../../assets/icons/round2.svg";
 import roundpass from "../../assets/icons/game-check.svg";
 import roundnotpass from "../../assets/icons/game-cross.svg";
 
 import playerIcon from "../../assets/icons/player.png";
 import svoyak from "../../assets/images/logo-top.png";
-import plus from "../../assets/images/plus.png";
-import minus from "../../assets/images/minus.png";
 import logo from "../../assets/icons/mts-logo.svg";
+import pres from "../../assets/icons/present.svg";
+import lead from "../../assets/icons/leaderboard.svg";
 
-type GameScreen = "board" | "question" | "round-finished" | "game-finished";
-type ModalResult = "correct" | "wrong" | "timeout" | null;
+const CHANNEL_URL = "https://t.me/eto_riil";
+
+type GameScreen =
+  | "board"
+  | "question"
+  | "modifier"
+  | "round-finished"
+  | "game-finished";
+
+type ModalResult =
+  | "correct"
+  | "wrong"
+  | "timeout"
+  | "modifier-plus"
+  | "modifier-minus"
+  | null;
 
 const TOTAL_QUESTIONS_PER_ROUND = 25;
-const QUESTION_TIMER_SECONDS = 30;
+const QUESTION_TIMER_SECONDS = 300;
 
 function Game() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const attempt = useAppStore((state) => state.attempt);
   const storeThemes = useAppStore((state) => state.themes);
+  const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
+  const canPlay = useAppStore((state) => state.can_play);
+  const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
+  const bestPoints = useAppStore((state) => state.best_points);
+  const hasQualified = useAppStore((state) => state.has_qualified);
+  const setCanPlay = useAppStore((state) => state.setCanPlay);
+  const setHasQualified = useAppStore((state) => state.setHasQualified);
 
-  // Initialize round & score from attempt in store
-  const initialRound =
-    attempt?.next_round && attempt.next_round >= 1 && attempt.next_round <= 3
-      ? attempt.next_round
-      : 1;
+  const isAlreadyQualifiedUser =
+    hasQualified ||
+    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    (!canPlay &&
+      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
+        (qualifyThreshold || 3000));
+
+  // Determine starting round based on themes and already answered question IDs
+  const calculateInitialRound = (
+    themes: ThemeDto[],
+    answeredIds: number[],
+  ): number => {
+    if (!themes.length) return 1;
+    for (let r = 1; r <= 3; r++) {
+      const themesInRound = themes.filter((t) => t.round === r);
+      if (!themesInRound.length) continue;
+      const qIds = themesInRound.flatMap((t) =>
+        (t.questions || []).map((q) => q.id),
+      );
+      const isRoundDone =
+        qIds.length > 0 && qIds.every((id) => answeredIds.includes(id));
+      if (!isRoundDone) return r;
+    }
+    return 3;
+  };
+
+  const initialRound = calculateInitialRound(storeThemes, storeAnsweredIds);
 
   // State
   const [round, setRound] = useState<number>(initialRound);
-  const [attemptBaseScore, setAttemptBaseScore] = useState<number>(
+  const [totalScore, setTotalScore] = useState<number>(
     attempt?.total_points ?? 0,
   );
-  const [roundScore, setRoundScore] = useState<number>(0);
-  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>([]);
+  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>(
+    storeAnsweredIds ?? [],
+  );
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
-  const [screen, setScreen] = useState<GameScreen>(
-    attempt?.is_finished ? "game-finished" : "board",
-  );
+  const [screen, setScreen] = useState<GameScreen>(() => {
+    if (
+      isAlreadyQualifiedUser ||
+      !canPlay ||
+      (attempt?.is_finished && (storeAnsweredIds?.length ?? 0) >= 75)
+    ) {
+      return "game-finished";
+    }
+    return "board";
+  });
   const [modalResult, setModalResult] = useState<ModalResult>(null);
-  const [, setLastAnswerDiff] = useState<number>(0);
+  const [modifierPoints, setModifierPoints] = useState<number>(0);
   const [timer, setTimer] = useState<number>(QUESTION_TIMER_SECONDS);
-  const [, setIsSubmittingRound] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [lastSubmitResponse, setLastSubmitResponse] =
+    useState<SubmitAnswerResponse | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const totalScore = attemptBaseScore + roundScore;
 
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
@@ -87,10 +141,67 @@ function Game() {
                 : q.answer
                   ? [String(q.answer)]
                   : [String(q.correct_answer || "")].filter(Boolean),
+              is_modifier: Boolean(q.is_modifier),
+              modifier_value: q.modifier_value ?? 0,
+              timer_sec: q.timer_sec ?? 30,
             }))
             .sort((a, b) => a.value - b.value),
         }))
       : getTopicsWithQuestions(ROUND_QUESTIONS);
+
+  // Synchronize state with store when store updates after hydration
+  useEffect(() => {
+    if (storeAnsweredIds && storeAnsweredIds.length > 0) {
+      setAnsweredQuestionIds((prev) => {
+        const next = Array.from(new Set([...prev, ...storeAnsweredIds]));
+        return next.length !== prev.length ? next : prev;
+      });
+    }
+  }, [storeAnsweredIds]);
+
+  const isRoundInitializedRef = useRef(storeThemes.length > 0);
+
+  useEffect(() => {
+    if (!isRoundInitializedRef.current && storeThemes.length > 0) {
+      isRoundInitializedRef.current = true;
+      const calcRound = calculateInitialRound(storeThemes, storeAnsweredIds);
+      setRound(calcRound);
+    }
+  }, [storeThemes, storeAnsweredIds]);
+
+  useEffect(() => {
+    if (
+      attempt?.total_points !== undefined &&
+      attempt.total_points > 0 &&
+      totalScore === 0
+    ) {
+      setTotalScore(attempt.total_points);
+    }
+  }, [attempt?.total_points]);
+
+  // Current round answered questions count
+  const currentRoundQuestions = topicGroups.flatMap((g) => g.questions);
+  const currentRoundAnsweredCount = currentRoundQuestions.filter((q) =>
+    answeredQuestionIds.includes(q.id),
+  ).length;
+
+  // Cumulative progress calculation for the bottom bar:
+  // Round 1: 0..25 / 25
+  // Round 2: 25..50 / 50
+  // Round 3: 50..75 / 75
+  const totalQuestionsForRound = round * TOTAL_QUESTIONS_PER_ROUND;
+
+  const questionsUpToRound = storeThemes
+    .filter((t) => t.round <= round)
+    .flatMap((t) => t.questions || []);
+
+  const totalAnsweredQuestions =
+    questionsUpToRound.length > 0
+      ? Math.max(
+          questionsUpToRound.filter((q) => answeredQuestionIds.includes(q.id)).length,
+          (round - 1) * TOTAL_QUESTIONS_PER_ROUND + currentRoundAnsweredCount,
+        )
+      : (round - 1) * TOTAL_QUESTIONS_PER_ROUND + currentRoundAnsweredCount;
 
   // Focus input when answering mode is active
   useEffect(() => {
@@ -102,9 +213,13 @@ function Game() {
     }
   }, [screen, isInputActive, modalResult]);
 
-  // Timer effect on question screen
+  // Timer effect on question and modifier screen
   useEffect(() => {
-    if (screen === "question" && !modalResult) {
+    if (
+      (screen === "question" || screen === "modifier") &&
+      !modalResult &&
+      !isSubmitting
+    ) {
       timerRef.current = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
@@ -122,39 +237,7 @@ function Game() {
         clearInterval(timerRef.current);
       }
     };
-  }, [screen, modalResult]);
-
-  // Submit round to API when 25 questions are finished
-  const handleFinishRound = async (finalRoundPoints: number) => {
-    const userId = user?.tg_id ?? user?.user_id;
-    if (userId) {
-      setIsSubmittingRound(true);
-      try {
-        const res = await submitRound(userId, round, finalRoundPoints);
-        setAttemptBaseScore(res.attempt_points);
-        setRoundScore(0);
-        if (res.finished || round >= 3) {
-          setScreen("game-finished");
-        } else {
-          setScreen("round-finished");
-        }
-        return;
-      } catch (err) {
-        console.error("Error submitting round:", err);
-      } finally {
-        setIsSubmittingRound(false);
-      }
-    }
-
-    // Fallback if no userId or offline
-    setAttemptBaseScore((prev) => prev + finalRoundPoints);
-    setRoundScore(0);
-    if (round < 3) {
-      setScreen("round-finished");
-    } else {
-      setScreen("game-finished");
-    }
-  };
+  }, [screen, modalResult, isSubmitting]);
 
   // Handlers
   const handleSelectQuestion = (q: Question) => {
@@ -162,57 +245,280 @@ function Game() {
     setActiveQuestion(q);
     setIsInputActive(false);
     setUserAnswer("");
+    // setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
     setTimer(QUESTION_TIMER_SECONDS);
     setModalResult(null);
-    setScreen("question");
+
+    if (q.is_modifier) {
+      setScreen("modifier");
+    } else {
+      setScreen("question");
+    }
   };
 
-  const handleTimeOut = () => {
-    if (!activeQuestion) return;
-    setAnsweredQuestionIds((prev) => [...prev, activeQuestion.id]);
-    setLastAnswerDiff(0);
+  const handleTimeOut = async () => {
+    if (!activeQuestion || isSubmitting) return;
+    setIsSubmitting(true);
+    const userId = user?.tg_id ?? user?.user_id;
+
+    if (userId) {
+      try {
+        if (activeQuestion.is_modifier) {
+          const res = await submitAnswer({
+            user_id: Number(userId),
+            question_id: activeQuestion.id,
+            modifier_accepted: false,
+          });
+          setTotalScore(res.attempt_points);
+          setLastSubmitResponse(res);
+        } else {
+          const res = await submitAnswer({
+            user_id: Number(userId),
+            question_id: activeQuestion.id,
+            skipped: true,
+          });
+          setTotalScore(res.attempt_points);
+          setLastSubmitResponse(res);
+        }
+      } catch (err) {
+        console.error("Error on timeout submit:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(false);
+    }
+
+    setAnsweredQuestionIds((prev) =>
+      prev.includes(activeQuestion.id) ? prev : [...prev, activeQuestion.id],
+    );
     setModalResult("timeout");
   };
 
-  const handlePass = () => {
-    if (!activeQuestion) return;
+  const handlePass = async () => {
+    if (!activeQuestion || isSubmitting) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
-    const updated = [...answeredQuestionIds, activeQuestion.id];
+    setIsSubmitting(true);
+    const userId = user?.tg_id ?? user?.user_id;
+    let submitRes: SubmitAnswerResponse | null = null;
+
+    if (userId) {
+      try {
+        submitRes = await submitAnswer({
+          user_id: Number(userId),
+          question_id: activeQuestion.id,
+          skipped: true,
+        });
+        setTotalScore(submitRes.attempt_points);
+        setLastSubmitResponse(submitRes);
+      } catch (err) {
+        console.error("Error on pass submit:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(false);
+    }
+
+    const updated = answeredQuestionIds.includes(activeQuestion.id)
+      ? answeredQuestionIds
+      : [...answeredQuestionIds, activeQuestion.id];
     setAnsweredQuestionIds(updated);
+    useAppStore.getState().addAnsweredQuestionId(activeQuestion.id);
     setActiveQuestion(null);
     setIsInputActive(false);
     setUserAnswer("");
 
-    if (updated.length >= TOTAL_QUESTIONS_PER_ROUND) {
-      handleFinishRound(roundScore);
+    const allDoneInRound =
+      currentRoundQuestions.length > 0 &&
+      currentRoundQuestions.every((q) => updated.includes(q.id));
+
+    const isRoundDone = Boolean(submitRes?.round_finished) || allDoneInRound;
+    const isAttemptDone = Boolean(submitRes?.attempt_finished) && round >= 3;
+
+    if (isAttemptDone) {
+      setScreen("game-finished");
+    } else if (isRoundDone) {
+      if (round >= 3) {
+        setScreen("game-finished");
+      } else {
+        setScreen("round-finished");
+      }
     } else {
       setScreen("board");
     }
   };
 
-  const handleSubmitAnswer = (e?: FormEvent) => {
+  const handleSubmitAnswer = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!activeQuestion || !userAnswer.trim()) return;
+    if (!activeQuestion || !userAnswer.trim() || isSubmitting) return;
 
     if (timerRef.current) clearInterval(timerRef.current);
 
-    const isCorrect = checkAnswerCorrectness(
-      userAnswer,
-      activeQuestion.correctAnswers,
-    );
+    setIsSubmitting(true);
+    const userId = user?.tg_id ?? user?.user_id;
+    const answerText = userAnswer.trim();
 
-    const updated = [...answeredQuestionIds, activeQuestion.id];
+    const updated = answeredQuestionIds.includes(activeQuestion.id)
+      ? answeredQuestionIds
+      : [...answeredQuestionIds, activeQuestion.id];
     setAnsweredQuestionIds(updated);
 
-    if (isCorrect) {
-      setRoundScore((prev) => prev + activeQuestion.value);
-      setLastAnswerDiff(activeQuestion.value);
-      setModalResult("correct");
+    if (userId) {
+      try {
+        const res = await submitAnswer({
+          user_id: Number(userId),
+          question_id: activeQuestion.id,
+          answer: answerText,
+        });
+        setTotalScore(res.attempt_points);
+        setLastSubmitResponse(res);
+        if (res.is_correct) {
+          setModalResult("correct");
+        } else {
+          setModalResult("wrong");
+        }
+      } catch (err) {
+        console.error("Error submitting answer:", err);
+        const isCorrect = checkAnswerCorrectness(
+          answerText,
+          activeQuestion.correctAnswers,
+        );
+        if (isCorrect) {
+          setTotalScore((prev) => prev + activeQuestion.value);
+          setModalResult("correct");
+        } else {
+          setTotalScore((prev) => prev - activeQuestion.value);
+          setModalResult("wrong");
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
-      setRoundScore((prev) => prev - activeQuestion.value);
-      setLastAnswerDiff(-activeQuestion.value);
-      setModalResult("wrong");
+      setIsSubmitting(false);
+      const isCorrect = checkAnswerCorrectness(
+        answerText,
+        activeQuestion.correctAnswers,
+      );
+      if (isCorrect) {
+        setTotalScore((prev) => prev + activeQuestion.value);
+        setModalResult("correct");
+      } else {
+        setTotalScore((prev) => prev - activeQuestion.value);
+        setModalResult("wrong");
+      }
+    }
+  };
+
+  const handleTakeModifier = async () => {
+    if (!activeQuestion || isSubmitting) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    setIsSubmitting(true);
+    const userId = user?.tg_id ?? user?.user_id;
+
+    const updated = answeredQuestionIds.includes(activeQuestion.id)
+      ? answeredQuestionIds
+      : [...answeredQuestionIds, activeQuestion.id];
+    setAnsweredQuestionIds(updated);
+
+    if (userId) {
+      try {
+        const res = await submitAnswer({
+          user_id: Number(userId),
+          question_id: activeQuestion.id,
+          modifier_accepted: true,
+        });
+        setTotalScore(res.attempt_points);
+        setLastSubmitResponse(res);
+        setModifierPoints(res.points);
+
+        if (res.points >= 0) {
+          setModalResult("modifier-plus");
+        } else {
+          setModalResult("modifier-minus");
+        }
+      } catch (err) {
+        console.error("Error accepting modifier:", err);
+        const modVal = activeQuestion.modifier_value || 500;
+        setModifierPoints(modVal);
+        if (modVal >= 0) {
+          setTotalScore((prev) => prev + modVal);
+          setModalResult("modifier-plus");
+        } else {
+          setTotalScore((prev) => prev + modVal);
+          setModalResult("modifier-minus");
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(false);
+      const modVal = activeQuestion.modifier_value || 500;
+      setModifierPoints(modVal);
+      if (modVal >= 0) {
+        setTotalScore((prev) => prev + modVal);
+        setModalResult("modifier-plus");
+      } else {
+        setTotalScore((prev) => prev + modVal);
+        setModalResult("modifier-minus");
+      }
+    }
+  };
+
+  const handlePassModifier = async () => {
+    if (!activeQuestion || isSubmitting) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    setIsSubmitting(true);
+    const userId = user?.tg_id ?? user?.user_id;
+    let submitRes: SubmitAnswerResponse | null = null;
+
+    const updated = answeredQuestionIds.includes(activeQuestion.id)
+      ? answeredQuestionIds
+      : [...answeredQuestionIds, activeQuestion.id];
+    setAnsweredQuestionIds(updated);
+
+    if (userId) {
+      try {
+        submitRes = await submitAnswer({
+          user_id: Number(userId),
+          question_id: activeQuestion.id,
+          modifier_accepted: false,
+        });
+        setTotalScore(submitRes.attempt_points);
+        setLastSubmitResponse(submitRes);
+      } catch (err) {
+        console.error("Error passing modifier:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(false);
+    }
+
+    setActiveQuestion(null);
+    setIsInputActive(false);
+    setUserAnswer("");
+
+    const allDoneInRound =
+      currentRoundQuestions.length > 0 &&
+      currentRoundQuestions.every((q) => updated.includes(q.id));
+
+    const isRoundDone = Boolean(submitRes?.round_finished) || allDoneInRound;
+    const isAttemptDone = Boolean(submitRes?.attempt_finished) && round >= 3;
+
+    if (isAttemptDone) {
+      setScreen("game-finished");
+    } else if (isRoundDone) {
+      if (round >= 3) {
+        setScreen("game-finished");
+      } else {
+        setScreen("round-finished");
+      }
+    } else {
+      setScreen("board");
     }
   };
 
@@ -222,8 +528,23 @@ function Game() {
     setIsInputActive(false);
     setUserAnswer("");
 
-    if (answeredQuestionIds.length >= TOTAL_QUESTIONS_PER_ROUND) {
-      handleFinishRound(roundScore);
+    const allDoneInRound =
+      currentRoundQuestions.length > 0 &&
+      currentRoundQuestions.every((q) => answeredQuestionIds.includes(q.id));
+
+    const isRoundDone =
+      Boolean(lastSubmitResponse?.round_finished) || allDoneInRound;
+    const isAttemptDone =
+      Boolean(lastSubmitResponse?.attempt_finished) && round >= 3;
+
+    if (isAttemptDone) {
+      setScreen("game-finished");
+    } else if (isRoundDone) {
+      if (round >= 3) {
+        setScreen("game-finished");
+      } else {
+        setScreen("round-finished");
+      }
     } else {
       setScreen("board");
     }
@@ -232,18 +553,16 @@ function Game() {
   const handleNextRound = () => {
     if (round < 3) {
       setRound((prev) => prev + 1);
-      setAnsweredQuestionIds([]);
-      setRoundScore(0);
+      setActiveQuestion(null);
       setIsInputActive(false);
+      setUserAnswer("");
+      setModalResult(null);
       setScreen("board");
     } else {
       setScreen("game-finished");
     }
   };
 
-  // const handleBackToMenu = () => {
-  //   navigate(appRoutes.MENU);
-  // };
   const handleGoToLeaderboard = () => {
     navigate(appRoutes.LEADERBOARD);
   };
@@ -251,45 +570,89 @@ function Game() {
     navigate(appRoutes.INFO);
   };
 
-  const handleRestartGame = () => {
+  const handleRestartGame = async () => {
+    if (isQualified) return;
+    const userId = user?.tg_id ?? user?.user_id;
+    if (userId) {
+      try {
+        const raw = await fetchAndHydrateUserData(userId);
+        if (raw.can_play === false) {
+          setScreen("game-finished");
+          return;
+        }
+        setRound(1);
+        setTotalScore(raw.attempt?.total_points ?? 0);
+        setAnsweredQuestionIds(raw.answered_question_ids ?? []);
+        setActiveQuestion(null);
+        setIsInputActive(false);
+        setUserAnswer("");
+        setModalResult(null);
+        setScreen("board");
+        return;
+      } catch (err) {
+        console.error("Error restarting game:", err);
+      }
+    }
+
     setRound(1);
-    setAttemptBaseScore(0);
-    setRoundScore(0);
+    setTotalScore(0);
     setAnsweredQuestionIds([]);
     setActiveQuestion(null);
     setIsInputActive(false);
     setUserAnswer("");
     setScreen("board");
+  };
 
-    const currentAttempt = useAppStore.getState().attempt;
-    if (currentAttempt) {
-      useAppStore.getState().setAttempt({
-        ...currentAttempt,
-        rounds_done: 0,
-        next_round: 1,
-        total_points: 0,
-        is_finished: false,
-      });
+  const isQualified =
+    isAlreadyQualifiedUser ||
+    Boolean(lastSubmitResponse?.qualified) ||
+    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    (Boolean(attempt?.is_finished) && totalScore >= (qualifyThreshold || 3000)) ||
+    (totalScore >= (qualifyThreshold || 3000) && screen === "game-finished");
+
+  const finishedScore =
+    bestPoints !== null && bestPoints !== undefined && bestPoints > 0
+      ? bestPoints
+      : totalScore;
+
+  useEffect(() => {
+    if (isQualified && screen === "game-finished") {
+      setCanPlay(false);
+      setHasQualified(true);
+    }
+  }, [isQualified, screen, setCanPlay, setHasQualified]);
+
+  const handleOpenChannel = () => {
+    const tg = (window as unknown as { Telegram?: { WebApp?: { openTelegramLink?: (url: string) => void } } })
+      ?.Telegram?.WebApp;
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(CHANNEL_URL);
+    } else {
+      window.open(CHANNEL_URL, "_blank");
     }
   };
 
-  const isQualified = totalScore >= 3000;
-
   // Render bottom bar for score & count
   const renderBottomBar = () => {
+    const progressText =
+      screen === "game-finished"
+        ? "75/75"
+        : `${totalAnsweredQuestions}/${totalQuestionsForRound}`;
+    const displayPoints = screen === "game-finished" ? finishedScore : totalScore;
+
     return (
       <div className="game__bottom_bar">
         <div className="game__bottom_user">
           <img src={playerIcon} alt="player" className="game__bottom_avatar" />
           <div className="game__bottom_points_wrap">
             <span className="game__bottom_points_label">Ваши очки</span>
-            <span className="game__bottom_points_val">{totalScore}</span>
+            <span className="game__bottom_points_val">{displayPoints}</span>
           </div>
         </div>
 
         <div className="game__bottom_progress">
           <span className="game__bottom_progress_text">
-            {answeredQuestionIds.length}/{TOTAL_QUESTIONS_PER_ROUND}
+            {progressText}
           </span>
         </div>
       </div>
@@ -355,22 +718,6 @@ function Game() {
         {/* SCREEN 2: QUESTION */}
         {screen === "question" && activeQuestion && (
           <div className="game__question_wrap">
-            {/* Top Badges: Topic & Timer */}
-            {/* <div className="game__question_top">
-              <div className="game__question_topic_badge">
-                <span className="game__question_topic_badge_text">
-                  {activeQuestion.topic}
-                </span>
-                <div className="game__question_topic_badge_val">
-                  {activeQuestion.value}
-                </div>
-              </div>
-
-              <div className="game__question_timer_badge">
-                <span className="game__question_timer_text">{timer} сек</span>
-
-              </div>
-            </div> */}
             <div className="game__question_top">
               <div className="game__question_top_badge">
                 <div className="game__question_top_badge_theme-cost">
@@ -389,7 +736,7 @@ function Game() {
                 <div
                   className="game__question_timer_fill"
                   style={{
-                    width: `${(timer / QUESTION_TIMER_SECONDS) * 100}%`,
+                    width: `${(timer / (activeQuestion.timer_sec || QUESTION_TIMER_SECONDS)) * 100}%`,
                   }}
                 />
               </div>
@@ -430,7 +777,7 @@ function Game() {
                   <button
                     type="submit"
                     className="game__question_submit_btn"
-                    disabled={!userAnswer.trim()}
+                    disabled={!userAnswer.trim() || isSubmitting}
                   >
                     <svg
                       width="100%"
@@ -463,6 +810,7 @@ function Game() {
                     type="button"
                     className="game__btn_pass"
                     onClick={handlePass}
+                    disabled={isSubmitting}
                   >
                     <span className="game__btn_pass_title">Пасануть</span>
                     <span className="game__btn_pass_sub">Баллы не спишем</span>
@@ -475,11 +823,82 @@ function Game() {
           </div>
         )}
 
+        {/* SCREEN 2B: MODIFIER (537:4429) */}
+        {screen === "modifier" && activeQuestion && (
+          <div className="game__modifier_wrap">
+            <div className="game__question_top">
+              <div className="game__question_top_badge">
+                <div className="game__question_top_badge_theme-cost">
+                  <span className="game__question_top_badge_theme">
+                    {activeQuestion.topic}
+                  </span>
+                  <div className="game__question_top_badge_cost">
+                    {activeQuestion.value}
+                  </div>
+                </div>
+                <div className="game__question_top_badge_timer">
+                  <span className="game__question_timer_text">{timer} сек</span>
+                </div>
+              </div>
+              <div className="game__question_timer_bar">
+                <div
+                  className="game__question_timer_fill"
+                  style={{
+                    width: `${(timer / (activeQuestion.timer_sec || QUESTION_TIMER_SECONDS)) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="game__modifier_body">
+              <div className="game__modifier_host_wrap">
+                <img
+                  src={modHost}
+                  alt="Ведущий"
+                  className="game__modifier_host_img"
+                />
+              </div>
+
+              <div className="game__modifier_card">
+                <p className="game__modifier_card_text">Попался модификатор</p>
+                <p className="game__modifier_card_text">рискуем или ну его?</p>
+              </div>
+
+              <div className="game__modifier_actions">
+                <button
+                  type="button"
+                  className="game__modifier_btn_take"
+                  onClick={handleTakeModifier}
+                  disabled={isSubmitting}
+                >
+                  <span className="game__modifier_btn_take_text">Забрать</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="game__modifier_btn_pass"
+                  onClick={handlePassModifier}
+                  disabled={isSubmitting}
+                >
+                  <span className="game__modifier_btn_pass_title">
+                    Пасануть
+                  </span>
+                  <span className="game__modifier_btn_pass_sub">
+                    Баллы не спишем
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {renderBottomBar()}
+          </div>
+        )}
+
         {/* SCREEN 3: ROUND FINISHED */}
         {screen === "round-finished" && (
           <div className="game__finished_wrap">
             <div className="game__finished_card">
-              <div></div>
+              <div className="game__finished_card_wrap"></div>
               <div className="game__finished_card_wrapper">
                 <img
                   src={round === 1 ? roundHost1 : roundHost2}
@@ -493,11 +912,11 @@ function Game() {
                 </h1>
               </div>
 
-              <div className="game__finished_btns">
-                <button className="game__btn_red" onClick={handleNextRound}>
-                  <span className="game__btn_red_text">Продолжить</span>
+              {/* <div className="game__finished_btns"> */}
+                <button className="game__btn_red_norm" onClick={handleNextRound}>
+                  <span className="game__btn_red_norm_text">Продолжаем!</span>
                 </button>
-              </div>
+              {/* </div> */}
             </div>
 
             {renderBottomBar()}
@@ -506,7 +925,17 @@ function Game() {
 
         {/* SCREEN 4: GAME FINISHED */}
         {screen === "game-finished" && (
-          <div className="game__finished_wrap">
+          <div
+            className={`game__finished_wrap ${
+              isQualified ? "game__finished_wrap--qualified" : ""
+            }`}
+          >
+            {isQualified && (
+              <div className="game__finished_logo">
+                <img src={logo} alt="МТС" />
+              </div>
+            )}
+
             <div className="game__finished_card">
               <div></div>
 
@@ -522,8 +951,8 @@ function Game() {
                 <h1 className="game__finished_title">
                   {isQualified ? (
                     <>
-                      Игра <br />
-                      завершена!
+                      ИГРА <br />
+                      ЗАВЕРШЕНА!
                     </>
                   ) : (
                     <>
@@ -534,52 +963,75 @@ function Game() {
                 </h1>
                 <p className="game__finished_subtitle">
                   {isQualified
-                    ? "Вы прошли все темы и набрали 3000 очков теперь вы участвуете в розыгрыше призов от МТС РИИЛ"
+                    ? `Вы прошли все темы и набрали  ${finishedScore} очков\nтеперь вы участвуете в розыгрыше призов\nот МТС РИИЛ`
                     : "Вы прошли все темы но не набрали 3000 очков для участия в розыгрыше вы можете повторить попытку еще раз"}
                 </p>
               </div>
 
-              <div className="game__finished_btns">
-                {isQualified ? (
-                  <>
+              {isQualified ? (
+                <div className="game__finished_qualified_actions">
+                  <div className="game__finished_btn_row">
                     <button
-                      className="game__finished_btn_gray"
+                      type="button"
+                      className="game__finished_btn_white"
+                      onClick={handleGoToInfo}
+                    >
+                      <img
+                        src={pres}
+                        alt="О конкурсе"
+                        className="game__finished_btn_white_img"
+                      />
+                      <span className="game__finished_btn_white_text">
+                        О конкурсе
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="game__finished_btn_white"
                       onClick={handleGoToLeaderboard}
                     >
-                      <span className="game__finished_btn_gray_text">
-                        Лидеры
+                      <img
+                        src={lead}
+                        alt="Лидерборд"
+                        className="game__finished_btn_white_img"
+                      />
+                      <span className="game__finished_btn_white_text">
+                        Лидерборд
                       </span>
                     </button>
-                    <button
-                      className="game__finished_btn_gray"
-                      onClick={handleGoToInfo}
-                    >
-                      <span className="game__finished_btn_gray_text">
-                        О правилах
-                      </span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="game__finished_btn_red"
-                      onClick={handleRestartGame}
-                    >
-                      <span className="game__finished_btn_red_text">
-                        Повторить
-                      </span>
-                    </button>
-                    <button
-                      className="game__finished_btn_gray"
-                      onClick={handleGoToInfo}
-                    >
-                      <span className="game__finished_btn_gray_text">
-                        О розыгрыше
-                      </span>
-                    </button>
-                  </>
-                )}
-              </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="game__finished_btn_trans"
+                    onClick={handleOpenChannel}
+                  >
+                    Подключить
+                    <br />
+                    тариф риил
+                  </button>
+                </div>
+              ) : (
+                <div className="game__finished_btns">
+                  <button
+                    className="game__finished_btn_red"
+                    onClick={handleRestartGame}
+                  >
+                    <span className="game__finished_btn_red_text">
+                      Повторить
+                    </span>
+                  </button>
+                  <button
+                    className="game__finished_btn_gray"
+                    onClick={handleGoToInfo}
+                  >
+                    <span className="game__finished_btn_gray_text">
+                      О розыгрыше
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {renderBottomBar()}
@@ -589,27 +1041,40 @@ function Game() {
         {/* MODAL RESULTS */}
         {modalResult && (
           <div className="game__modal_overlay">
-            {/* <div></div> */}
             {/* Correct */}
             {modalResult === "correct" && (
               <>
-                <img
-                  src={valid}
-                  alt="Correct"
-                  className="game__modal_host_img"
-                />
                 <div className="game__modal_host_wrap">
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Верно!</h2>
                     <p className="game__modal_desc">
                       Поздравляю, ты явно умнее одного постоянного гостя шоу!
                     </p>
-                    <img
-                      src={plus}
-                      alt=""
-                      className="game__modal_badge_wrap_img"
-                    />
+                    <div className="game__modal_pill_badge game__modal_pill_badge--plus">
+                      <span className="game__modal_pill_badge_text">
+                        +
+                        {Math.abs(
+                          lastSubmitResponse?.points ||
+                            activeQuestion?.value ||
+                            100,
+                        )}
+                      </span>
+                    </div>
                   </div>
+                  <img
+                    src={valid}
+                    alt="Correct"
+                    className="game__modal_host_img"
+                  />
+                </div>
+                <div className="game__modal_btn_wrap">
+                  <button
+                    type="button"
+                    className="game__modal_btn"
+                    onClick={handleModalContinue}
+                  >
+                    <span className="game__modal_btn_text">Продолжаем!</span>
+                  </button>
                 </div>
               </>
             )}
@@ -617,23 +1082,38 @@ function Game() {
             {/* Wrong */}
             {modalResult === "wrong" && (
               <>
-                <img
-                  src={invalid}
-                  alt="Wrong"
-                  className="game__modal_host_img"
-                />
                 <div className="game__modal_host_wrap">
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Не верно!</h2>
                     <p className="game__modal_desc">
                       Вот такая подстава, дружок…
                     </p>
-                    <img
-                      src={minus}
-                      alt=""
-                      className="game__modal_badge_wrap_img"
-                    />
+                    <div className="game__modal_pill_badge game__modal_pill_badge--minus">
+                      <span className="game__modal_pill_badge_text">
+                        -
+                        {Math.abs(
+                          lastSubmitResponse?.points ||
+                            activeQuestion?.value ||
+                            100,
+                        )}
+                      </span>
+                    </div>
                   </div>
+                  <img
+                    src={invalid}
+                    alt="Wrong"
+                    className="game__modal_host_img"
+                  />
+                </div>
+
+                <div className="game__modal_btn_wrap">
+                  <button
+                    type="button"
+                    className="game__modal_btn"
+                    onClick={handleModalContinue}
+                  >
+                    <span className="game__modal_btn_text">Продолжаем!</span>
+                  </button>
                 </div>
               </>
             )}
@@ -641,11 +1121,6 @@ function Game() {
             {/* Timeout */}
             {modalResult === "timeout" && (
               <>
-                <img
-                  src={timeHost}
-                  alt="Timeout"
-                  className="game__modal_host_img"
-                />
                 <div className="game__modal_host_wrap">
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Время кончилось</h2>
@@ -654,17 +1129,107 @@ function Game() {
                       списываем
                     </p>
                   </div>
+                  <img
+                    src={timeHost}
+                    alt="Timeout"
+                    className="game__modal_host_img"
+                  />
+                </div>
+                <div className="game__modal_btn_wrap">
+                  <button
+                    type="button"
+                    className="game__modal_btn"
+                    onClick={handleModalContinue}
+                  >
+                    <span className="game__modal_btn_text">Продолжаем!</span>
+                  </button>
                 </div>
               </>
             )}
 
-            <button
-              type="button"
-              className="game__modal_btn"
-              onClick={handleModalContinue}
-            >
-              <span className="game__modal_btn_text">Продолжить</span>
-            </button>
+            {/* Modifier Plus Result (537:4202) */}
+            {modalResult === "modifier-plus" && (
+              <div className="game__modal_modifier_wrap">
+                <div className="wrapper"></div>
+
+                <div className="game__modal_modifier_center">
+                  <div className="game__modal_modifier_circle">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                      <path
+                        d="M24 10V38M10 24H38"
+                        stroke="white"
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="game__modal_modifier_title">
+                    + {Math.abs(modifierPoints)} балов
+                  </h2>
+                  <div className="game__modal_modifier_desc">
+                    <p className="game__modal_modifier_desc_p">
+                      На счет прилетело {Math.abs(modifierPoints)} бонусных
+                      балов
+                    </p>
+                    <p className="game__modal_modifier_desc_p">круто же?</p>
+                  </div>
+                </div>
+
+                <div className="game__modal_modifier_btn_wrap">
+                  <button
+                    type="button"
+                    className="game__modal_modifier_btn"
+                    onClick={handleModalContinue}
+                  >
+                    <span className="game__modal_modifier_btn_text">
+                      Круто! Забрать
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Modifier Minus Result (537:4328) */}
+            {modalResult === "modifier-minus" && (
+              <div className="game__modal_modifier_wrap">
+                <div className="wrapper"></div>
+
+                <div className="game__modal_modifier_center">
+                  <div className="game__modal_modifier_circle">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                      <path
+                        d="M10 24H38"
+                        stroke="white"
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="game__modal_modifier_title">
+                    - {Math.abs(modifierPoints)} балов
+                  </h2>
+                  <div className="game__modal_modifier_desc">
+                    <p className="game__modal_modifier_desc_p">
+                      К успеху шли, но не дошли!
+                    </p>
+                    <p className="game__modal_modifier_desc_p">
+                      повезет в другой раз, на этот раз минус
+                    </p>
+                  </div>
+                </div>
+                <div className="game__modal_modifier_btn_wrap">
+                  <button
+                    type="button"
+                    className="game__modal_modifier_btn"
+                    onClick={handleModalContinue}
+                  >
+                    <span className="game__modal_modifier_btn_text">
+                      Принять участь
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

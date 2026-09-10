@@ -1,5 +1,5 @@
 import "./Menu.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
 import svoyak from "../../assets/images/logo-top.png";
@@ -19,6 +19,28 @@ const CHANNEL_URL = "https://t.me/eto_riil";
 function Menu() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
+  const hasQualified = useAppStore((state) => state.has_qualified);
+  const canPlay = useAppStore((state) => state.can_play);
+  const attempt = useAppStore((state) => state.attempt);
+  const bestPoints = useAppStore((state) => state.best_points);
+  const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
+  const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
+
+  const isQualifiedUser =
+    hasQualified ||
+    ((bestPoints ?? 0) >= (qualifyThreshold || 3000)) ||
+    ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) &&
+      (Boolean(attempt?.is_finished) || (storeAnsweredIds?.length ?? 0) >= 75)) ||
+    (!canPlay &&
+      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
+        (qualifyThreshold || 3000));
+
+  useEffect(() => {
+    if (isQualifiedUser) {
+      navigate(appRoutes.GAME, { replace: true });
+    }
+  }, [isQualifiedUser, navigate]);
+
   const menuContentState = "game";
   // const [isLoading, setIsLoading] = useState(false);
   const [isLoading, ] = useState(false);

@@ -8,6 +8,7 @@
   justify-content: center;
 
   overflow: hidden;
+  animation: pageFadeIn 0.45s ease-out;
 
   padding: calc(
       var(--tg-content-safe-area-inset-top, 0px) +
@@ -38,28 +39,40 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  gap: 15px;
 }
 
 .sub__top_logo {
   width: 41px;
   height: 41px;
+  animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .sub__mid_wrapper {
   width: 100%;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
 }
 
 .sub__mid {
   width: 100%;
+  height: 100%;
+  max-height: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 90px 17px;
+  padding-right: 17px;
+  padding-left: 17px;
   border: 3px solid #ffffff33;
   border-radius: 40px;
   background: linear-gradient(180deg, #ffffff99 0%, #f3f3f3 100%);
+  background-clip: padding-box;
+  animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: 0.1s;
 }
 
 .sub__mid_logo {
@@ -105,6 +118,12 @@
   background-color: #ff0032;
   border: 1px solid #ffffff;
   border-radius: 70px;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.94;
+  }
 }
 
 .sub__btn_red_text {
@@ -126,6 +145,12 @@
   border-radius: 70px;
   background-color: #0000001a;
   border: 1px solid #ffffff21;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
+
+  &:active {
+    transform: scale(0.97);
+    background-color: rgba(0, 0, 0, 0.25);
+  }
 }
 
 .sub__btn_gray_text {
@@ -146,7 +171,7 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(255, 255, 255, 0.12);
+  background: #0000006B;
   -webkit-backdrop-filter: blur(24.2px);
 
   backdrop-filter: blur(24.2px);
@@ -223,16 +248,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .sub__notfound_cross {
   width: 98px;
   height: 98px;
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  // position: absolute;
+  // top: 40%;
+  // left: 50%;
+  // transform: translate(-50%, -50%);
 }
 
 .sub__notfound_bottom {

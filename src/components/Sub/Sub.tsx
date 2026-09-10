@@ -107,10 +107,11 @@ function Sub() {
 
           {checkStatus === "not-found" && (
             <div className="sub__notfound">
-              <div></div>
-              <div className="sub__notfound_bottom">
+              <div className="sub__notfound_cross_wrapper">
                 <img src={notFound} alt="" className="sub__notfound_cross" />
+              </div>
 
+              <div className="sub__notfound_bottom">
                 <div className="sub__notfound_bottom_text-block">
                   <h1 className="sub__notfound_bottom_h">
                     Подписка не найдена!
