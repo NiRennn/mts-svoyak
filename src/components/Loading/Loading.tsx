@@ -39,14 +39,30 @@ function Loading() {
       userData.answered_question_ids?.length ??
       userData.attempt?.answered_count ??
       0;
-    const isAttemptFinished =
+    const isCurrentAttemptFinished =
       Boolean(userData.attempt?.is_finished) || answeredCount >= 75;
     const serverCanPlay = userData.can_play ?? true;
 
+    const hasFinishedQualifiedAttemptInList =
+      Array.isArray(userData.attempts) &&
+      userData.attempts.some(
+        (a) =>
+          Boolean(a.is_finished) &&
+          ((a.total_points ?? 0) >= qualifyThreshold || bestPoints >= qualifyThreshold),
+      );
+
+    const isCurrentAttemptQualified =
+      isCurrentAttemptFinished &&
+      (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold);
+
+    const isExhaustedQualified =
+      !serverCanPlay &&
+      Math.max(bestPoints, attemptPoints) >= qualifyThreshold;
+
     const isQualifiedAndFinished =
-      (isAttemptFinished &&
-        (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold)) ||
-      (!serverCanPlay && Math.max(bestPoints, attemptPoints) >= qualifyThreshold);
+      hasFinishedQualifiedAttemptInList ||
+      isCurrentAttemptQualified ||
+      isExhaustedQualified;
 
     if (isQualifiedAndFinished) {
       return appRoutes.GAME;

@@ -96,7 +96,7 @@
   padding: 30px 25px
     calc(
       var(--tg-content-safe-area-inset-bottom, 0px) +
-        var(--tg-safe-area-inset-bottom, 0px) + 30px
+        var(--tg-safe-area-inset-bottom, 0px) + 10px
     );
   position: relative;
   overflow: hidden;
@@ -422,7 +422,7 @@
     padding: 15px 25px
       calc(
         var(--tg-content-safe-area-inset-bottom, 0px) +
-          var(--tg-safe-area-inset-bottom, 0px) + 20px
+          var(--tg-safe-area-inset-bottom, 0px) + 10px
       );
   }
 

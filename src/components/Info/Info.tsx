@@ -74,18 +74,29 @@ function Info() {
   const hasQualified = useAppStore((state) => state.has_qualified);
   const canPlay = useAppStore((state) => state.can_play);
   const attempt = useAppStore((state) => state.attempt);
+  const attempts = useAppStore((state) => state.attempts);
   const bestPoints = useAppStore((state) => state.best_points);
   const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
   const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
 
   const answeredCount =
     storeAnsweredIds?.length ?? attempt?.answered_count ?? 0;
-  const isAttemptFinished =
+  const isCurrentAttemptFinished =
     Boolean(attempt?.is_finished) || answeredCount >= 75;
+
+  const hasFinishedQualifiedAttempt =
+    Array.isArray(attempts) &&
+    attempts.some(
+      (a) =>
+        Boolean(a.is_finished) &&
+        ((a.total_points ?? 0) >= (qualifyThreshold || 3000) ||
+          (bestPoints ?? 0) >= (qualifyThreshold || 3000)),
+    );
 
   const isQualifiedUser =
     hasQualified ||
-    (isAttemptFinished &&
+    hasFinishedQualifiedAttempt ||
+    (isCurrentAttemptFinished &&
       ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
         (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
     (!canPlay &&

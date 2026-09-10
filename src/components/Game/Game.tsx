@@ -56,6 +56,7 @@ function Game() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const attempt = useAppStore((state) => state.attempt);
+  const attempts = useAppStore((state) => state.attempts);
   const storeThemes = useAppStore((state) => state.themes);
   const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
   const canPlay = useAppStore((state) => state.can_play);
@@ -67,12 +68,22 @@ function Game() {
 
   const answeredCount =
     storeAnsweredIds?.length ?? attempt?.answered_count ?? 0;
-  const isAttemptFinished =
+  const isCurrentAttemptFinished =
     Boolean(attempt?.is_finished) || answeredCount >= 75;
+
+  const hasFinishedQualifiedAttempt =
+    Array.isArray(attempts) &&
+    attempts.some(
+      (a) =>
+        Boolean(a.is_finished) &&
+        ((a.total_points ?? 0) >= (qualifyThreshold || 3000) ||
+          (bestPoints ?? 0) >= (qualifyThreshold || 3000)),
+    );
 
   const isQualifiedAndFinished =
     hasQualified ||
-    (isAttemptFinished &&
+    hasFinishedQualifiedAttempt ||
+    (isCurrentAttemptFinished &&
       ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
         (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
     (!canPlay &&
@@ -112,7 +123,7 @@ function Game() {
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [screen, setScreen] = useState<GameScreen>(() => {
-    if (isQualifiedAndFinished || (!canPlay && isAttemptFinished)) {
+    if (isQualifiedAndFinished || (!canPlay && isCurrentAttemptFinished)) {
       return "game-finished";
     }
     return "board";
@@ -611,6 +622,7 @@ function Game() {
     (screen === "game-finished" || isQualifiedAndFinished) &&
     (totalScore >= (qualifyThreshold || 3000) ||
       (bestPoints ?? 0) >= (qualifyThreshold || 3000) ||
+      hasFinishedQualifiedAttempt ||
       Boolean(lastSubmitResponse?.qualified));
 
   const finishedScore =
