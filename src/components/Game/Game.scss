@@ -31,10 +31,7 @@
       var(--tg-content-safe-area-inset-right, 0px) +
         var(--tg-safe-area-inset-right, 0px)
     )
-    calc(
-      var(--tg-content-safe-area-inset-bottom, 0px) +
-        var(--tg-safe-area-inset-bottom, 0px)
-    )
+    0
     calc(
       var(--tg-content-safe-area-inset-left, 0px) +
         var(--tg-safe-area-inset-left, 0px)
@@ -169,12 +166,16 @@
   justify-content: space-between;
   align-items: center;
   background-color: #ffffff;
-  padding: 28px;
+  padding: 28px 28px calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 20px
+    );
   border-radius: 50px 50px 0 0;
   position: relative;
   z-index: 1;
   animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   animation-delay: 0.1s;
+  
 }
 
 .game__bottom_user {
