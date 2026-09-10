@@ -246,8 +246,8 @@ function Game() {
     setActiveQuestion(q);
     setIsInputActive(false);
     setUserAnswer("");
-    // setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
-    setTimer(QUESTION_TIMER_SECONDS);
+    setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
+    // setTimer(QUESTION_TIMER_SECONDS);
     setModalResult(null);
 
     if (q.is_modifier) {
