@@ -65,8 +65,8 @@ body.is-mobile .game__board_wrap_logo {
   top: var(--tg-header-center-y, 58px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
+  width: 41px;
+  height: 41px;
   margin: 0;
   z-index: 50;
   pointer-events: none;
@@ -784,8 +784,8 @@ body.is-mobile .game__finished_logo {
     top: var(--tg-header-center-y, 58px);
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
+    width: 41px;
+    height: 41px;
     margin: 0;
     z-index: 50;
     pointer-events: none;

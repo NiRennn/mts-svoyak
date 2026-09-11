@@ -38,7 +38,7 @@ body.is-mobile .leaderboards {
 .leaderboards--desktop,
 body.is-desktop .leaderboards {
   gap: 20px;
-  padding-top: 14px;
+  padding-top: 8px;
 }
 
 .leaderboards__logo {
@@ -55,8 +55,8 @@ body.is-mobile .leaderboards__logo {
   top: var(--tg-header-center-y, 58px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
+  width: 41px;
+  height: 41px;
   margin: 0;
   z-index: 50;
   pointer-events: none;

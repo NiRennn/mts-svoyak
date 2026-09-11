@@ -54,8 +54,8 @@ body.is-mobile .info__logo_mts {
   top: var(--tg-header-center-y, 58px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
+  width: 41px;
+  height: 41px;
   margin: 0;
   z-index: 50;
   pointer-events: none;
@@ -112,7 +112,8 @@ body.is-mobile .info__scroll {
 [data-platform="desktop"] .info__scroll,
 .info--desktop .info__scroll,
 body.is-desktop .info__scroll {
-  padding: 24px 20px 24px 20px;
+  // padding: 24px 20px 24px 20px;
+  padding-top: 8px 0 20px;
 }
 
 .info__main {
