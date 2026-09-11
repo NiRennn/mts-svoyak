@@ -48,6 +48,23 @@
   animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
+[data-platform="mobile"] .sub__top_logo,
+.sub--mobile .sub__top_logo {
+  position: absolute;
+  top: var(
+    --tg-header-center-y,
+    calc(var(--tg-safe-area-inset-top, 0px) + 25px)
+  );
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  margin-top: -19px;
+  width: 38px;
+  height: 38px;
+  z-index: 10;
+  animation: pageFadeIn 0.4s ease-out;
+}
+
 .sub__mid_wrapper {
   width: 100%;
   padding: 0 20px;

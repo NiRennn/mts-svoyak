@@ -138,6 +138,31 @@ function Game() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Telegram BackButton support for question selection board
+  useEffect(() => {
+    const tg = (window as any)?.Telegram?.WebApp;
+    const backButton = tg?.BackButton;
+
+    if (!backButton) return;
+
+    const handleTelegramBack = () => {
+      navigate(appRoutes.MENU, { replace: true });
+    };
+
+    if (screen === "board") {
+      backButton.show();
+      backButton.onClick(handleTelegramBack);
+    } else {
+      backButton.offClick(handleTelegramBack);
+      backButton.hide();
+    }
+
+    return () => {
+      backButton.offClick(handleTelegramBack);
+      backButton.hide();
+    };
+  }, [screen, navigate]);
+
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
 

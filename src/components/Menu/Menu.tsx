@@ -12,12 +12,14 @@ import lead from "../../assets/icons/leaderboard.svg";
 // import kov from "../../assets/images/loader-kov1.png";
 import kov from "../../assets/images/menu-kov.png";
 import logo from "../../assets/icons/mts-logo.svg";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 // type MenuContentState = "game" | "all-found" | "finished";
 
 const CHANNEL_URL = "https://t.me/eto_riil";
 
 function Menu() {
+  const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const hasQualified = useAppStore((state) => state.has_qualified);
@@ -57,6 +59,11 @@ function Menu() {
       navigate(appRoutes.GAME, { replace: true });
     }
   }, [isQualifiedAndFinished, navigate]);
+
+  useEffect(() => {
+    const tg = (window as any)?.Telegram?.WebApp;
+    tg?.BackButton?.hide?.();
+  }, []);
 
   const menuContentState = "game";
   // const [isLoading, setIsLoading] = useState(false);
@@ -168,9 +175,10 @@ function Menu() {
 
   return (
     <div
-      className="menu"
+      className={`menu ${isMobile ? "menu--mobile" : "menu--desktop"}`}
       data-state={menuContentState}
       data-loading={isLoading}
+      data-platform={isMobile ? "mobile" : "desktop"}
     >
       <div className="menu__content">
         <div className="menu__content_main">

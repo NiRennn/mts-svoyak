@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import appRoutes from "./routes/routes";
 import './App.scss'
 import { useNavigate } from "react-router-dom";
@@ -12,11 +12,14 @@ import Game from "./components/Game/Game";
 import Leaderboard from "./components/Leaderboard/Leaderboard";
 import End from "./components/End/End";
 
+import { initTelegramPlatformAndSafeArea } from "./utils/telegramPlatform";
+
 function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
     window.Telegram.WebApp.ready();
+    initTelegramPlatformAndSafeArea();
     navigate(appRoutes.LOADDING, { replace: true });
   }, []);
 

@@ -9,12 +9,14 @@ import appRoutes from "../../routes/routes";
 import subLogo from "../../assets/images/sub.png";
 import notFound from "../../assets/icons/subnotfound.svg";
 import logo from "../../assets/icons/mts-logo.svg";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 type CheckStatus = "idle" | "checking" | "not-found";
 
 const CHANNEL_URL = "https://t.me/+X_Y-xncYDCAzZTJi";
 
 function Sub() {
+  const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const [checkStatus, setCheckStatus] = useState<CheckStatus>("idle");
@@ -62,7 +64,10 @@ function Sub() {
   };
 
   return (
-    <div className="sub">
+    <div
+      className={`sub ${isMobile ? "sub--mobile" : "sub--desktop"}`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <div className="sub__content">
         <img src={logo} alt="" className="sub__top_logo" />
         <div className="sub__mid_wrapper">

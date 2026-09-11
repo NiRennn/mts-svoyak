@@ -16,6 +16,7 @@ import {
   getEffectiveUserId,
   getTelegramInitData,
 } from "../../api/telegramAuth";
+import { initTelegramPlatformAndSafeArea } from "../../utils/telegramPlatform";
 
 const MIN_LOADING_DELAY = 3000;
 
@@ -137,6 +138,8 @@ function Loading() {
     try {
       tg?.disableVerticalSwipes?.();
     } catch {}
+
+    initTelegramPlatformAndSafeArea();
 
     tg?.setHeaderColor?.("#f3f9ff");
     tg?.setBackgroundColor?.("#f3f9ff");

@@ -55,6 +55,23 @@
   animation-delay: 0.05s;
 }
 
+[data-platform="mobile"] .menu__logo,
+.menu--mobile .menu__logo {
+  position: absolute;
+  top: var(
+    --tg-header-center-y,
+    calc(var(--tg-safe-area-inset-top, 0px) + 25px)
+  );
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  margin-top: -19px;
+  width: 38px;
+  height: 38px;
+  z-index: 10;
+  animation: pageFadeIn 0.4s ease-out;
+}
+
 .menu__img_block {
   width: 100%;
   flex: 1;
