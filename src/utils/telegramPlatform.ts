@@ -17,7 +17,10 @@ export const isMobileTelegram = (): boolean => {
   ) {
     return false;
   }
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return (
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    window.innerWidth <= 600
+  );
 };
 
 export const initTelegramPlatformAndSafeArea = () => {
@@ -25,46 +28,80 @@ export const initTelegramPlatformAndSafeArea = () => {
 
   const updatePlatformAndInsets = () => {
     const isNowMobile = isMobileTelegram();
+    const platform = tg?.platform;
+    const isIOS = platform === "ios";
+
     document.documentElement.setAttribute(
       "data-platform",
       isNowMobile ? "mobile" : "desktop"
     );
-    document.body.setAttribute(
-      "data-platform",
-      isNowMobile ? "mobile" : "desktop"
-    );
+    if (document.body) {
+      document.body.setAttribute(
+        "data-platform",
+        isNowMobile ? "mobile" : "desktop"
+      );
+
+      if (isNowMobile) {
+        document.body.classList.add("is-mobile");
+        document.body.classList.remove("is-desktop");
+      } else {
+        document.body.classList.add("is-desktop");
+        document.body.classList.remove("is-mobile");
+      }
+    }
 
     let safeTop = 0;
     let contentTop = 0;
 
-    if (tg?.safeAreaInset && typeof tg.safeAreaInset.top === "number") {
+    if (
+      tg?.safeAreaInset &&
+      typeof tg.safeAreaInset.top === "number" &&
+      tg.safeAreaInset.top > 0
+    ) {
       safeTop = tg.safeAreaInset.top;
-      document.documentElement.style.setProperty(
-        "--tg-safe-area-inset-top",
-        `${safeTop}px`
-      );
+    } else if (isNowMobile) {
+      safeTop = isIOS ? 44 : 30;
     }
+
     if (
       tg?.contentSafeAreaInset &&
-      typeof tg.contentSafeAreaInset.top === "number"
+      typeof tg.contentSafeAreaInset.top === "number" &&
+      tg.contentSafeAreaInset.top > 0
     ) {
       contentTop = tg.contentSafeAreaInset.top;
-      document.documentElement.style.setProperty(
-        "--tg-content-safe-area-inset-top",
-        `${contentTop}px`
-      );
+    } else if (isNowMobile) {
+      contentTop = isIOS ? 44 : 56;
     }
 
-    // Default fallback height for Telegram header buttons on mobile if not set
-    if (isNowMobile && contentTop === 0) {
-      contentTop = 50;
-    }
+    const headerCenterY = isNowMobile ? safeTop + contentTop / 2 : 0;
 
-    const headerCenterY = safeTop + contentTop / 2;
+    document.documentElement.style.setProperty(
+      "--tg-safe-area-inset-top",
+      `${safeTop}px`
+    );
+    document.documentElement.style.setProperty(
+      "--tg-content-safe-area-inset-top",
+      `${contentTop}px`
+    );
     document.documentElement.style.setProperty(
       "--tg-header-center-y",
       `${headerCenterY}px`
     );
+
+    if (document.body) {
+      document.body.style.setProperty(
+        "--tg-safe-area-inset-top",
+        `${safeTop}px`
+      );
+      document.body.style.setProperty(
+        "--tg-content-safe-area-inset-top",
+        `${contentTop}px`
+      );
+      document.body.style.setProperty(
+        "--tg-header-center-y",
+        `${headerCenterY}px`
+      );
+    }
   };
 
   updatePlatformAndInsets();

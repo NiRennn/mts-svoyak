@@ -52,6 +52,32 @@
   height: 41px;
 }
 
+[data-platform="mobile"] .loading__content_logo,
+.loading--mobile .loading__content_logo,
+body.is-mobile .loading__content_logo {
+  position: fixed;
+  top: var(--tg-header-center-y, 58px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+[data-platform="desktop"] .loading__content_logo,
+.loading--desktop .loading__content_logo,
+body.is-desktop .loading__content_logo {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 41px;
+  height: 41px;
+  pointer-events: auto;
+}
+
 .loading__content_bot {
   width: 100%;
   display: flex;

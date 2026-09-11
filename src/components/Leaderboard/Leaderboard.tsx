@@ -10,8 +10,10 @@ import logo from "../../assets/icons/mts-logo.svg";
 import info from "../../assets/icons/info.svg";
 import lead from "../../assets/images/lead3000.png";
 import playerIcon from "../../assets/icons/player.png";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 function Leaderboard() {
+  const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
 
@@ -108,7 +110,12 @@ function Leaderboard() {
   }, [user]);
 
   return (
-    <div className="leaderboards">
+    <div
+      className={`leaderboards ${
+        isMobile ? "leaderboards--mobile" : "leaderboards--desktop"
+      }`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <img src={logo} alt="МТС" className="leaderboards__logo" />
 
       <div className="leaderboards__main">

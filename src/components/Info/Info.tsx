@@ -11,6 +11,7 @@ import closeIcon from "../../assets/icons/close.svg";
 import infoLogo from "../../assets/images/logo-top.png";
 import logo from "../../assets/icons/mts-logo.svg";
 import chelik from "../../assets/images/info-man.png";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 type FaqItem = {
   id: number;
@@ -63,6 +64,7 @@ const prizes = [
 const CHANNEL_URL = "https://t.me/eto_riil";
 
 function Info() {
+  const isMobile = isMobileTelegram();
   const user = useAppStore((state) => state.user);
   const navigate = useNavigate();
 
@@ -172,7 +174,10 @@ function Info() {
   };
 
   return (
-    <div className="info">
+    <div
+      className={`info ${isMobile ? "info--mobile" : "info--desktop"}`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <div className="info__scroll">
         <div className="info__logo_wrapper">
           <img src={logo} alt="" className="info__logo_mts"/>

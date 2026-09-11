@@ -6,8 +6,10 @@ import wingray from "../../assets/icons/win-gray.svg";
 
 import { useAppStore } from "../../store/appStore";
 import type { WinnerDto } from "../../store/appStore";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 function End() {
+  const isMobile = isMobileTelegram();
   const user = useAppStore((state) => state.user);
   const winners = useAppStore((state) => state.winners);
 
@@ -40,7 +42,10 @@ function End() {
   };
 
   return (
-    <div className="end">
+    <div
+      className={`end ${isMobile ? "end--mobile" : "end--desktop"}`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <div className="end__content">
         <img src={mtsLogo} alt="" className="end__content_top_logo" />
 

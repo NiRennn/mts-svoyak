@@ -16,7 +16,10 @@ import {
   getEffectiveUserId,
   getTelegramInitData,
 } from "../../api/telegramAuth";
-import { initTelegramPlatformAndSafeArea } from "../../utils/telegramPlatform";
+import {
+  initTelegramPlatformAndSafeArea,
+  isMobileTelegram,
+} from "../../utils/telegramPlatform";
 
 const MIN_LOADING_DELAY = 3000;
 
@@ -26,6 +29,7 @@ const delay = (ms: number) =>
   });
 
 function Loading() {
+  const isMobile = isMobileTelegram();
   const navigate = useNavigate();
 
   const pickNextRoute = (userData: GetUserDataResponse) => {
@@ -200,7 +204,10 @@ function Loading() {
     };
   }, [navigate]);
   return (
-    <div className="loading">
+    <div
+      className={`loading ${isMobile ? "loading--mobile" : "loading--desktop"}`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <div className="loading__content">
         <div className="loading__content_top">
           <img src={logo} alt="" className="loading__content_logo"/>
