@@ -64,6 +64,7 @@ body.is-mobile .loading__content_logo {
   margin: 0;
   z-index: 50;
   pointer-events: none;
+  animation: none;
 }
 
 [data-platform="desktop"] .loading__content_logo,

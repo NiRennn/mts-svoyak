@@ -942,8 +942,12 @@ function Game() {
         {/* SCREEN 3: ROUND FINISHED */}
         {screen === "round-finished" && (
           <div className="game__finished_wrap">
+            <div className="game__finished_logo">
+              <img src={logo} alt="МТС" />
+            </div>
+
             <div className="game__finished_card">
-              <div className="game__finished_card_wrap"></div>
+              <div></div>
               <div className="game__finished_card_wrapper">
                 <img
                   src={round === 1 ? roundHost1 : roundHost2}
@@ -975,11 +979,9 @@ function Game() {
               isQualified ? "game__finished_wrap--qualified" : ""
             }`}
           >
-            {isQualified && (
-              <div className="game__finished_logo">
-                <img src={logo} alt="МТС" />
-              </div>
-            )}
+            <div className="game__finished_logo">
+              <img src={logo} alt="МТС" />
+            </div>
 
             <div className="game__finished_card">
               <div></div>

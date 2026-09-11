@@ -93,6 +93,7 @@ body.is-mobile .end__content_top_logo {
   margin: 0;
   z-index: 50;
   pointer-events: none;
+  animation: none;
 }
 
 [data-platform="desktop"] .end__content_top_logo,

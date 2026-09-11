@@ -80,7 +80,104 @@ body {
 }
 
 ul,
-ol
- {
+ol {
   list-style: none;
+}
+
+/* ==========================================================================
+   UNIFIED MOBILE TELEGRAM HEADER LOGO
+   Guarantees 100% identical height, center coordinates (X/Y), dimensions,
+   and prevents any jumping or re-animating during screen transitions.
+   ========================================================================== */
+[data-platform="mobile"] .menu__logo,
+.menu--mobile .menu__logo,
+body.is-mobile .menu__logo,
+[data-platform="mobile"] .info__logo_mts,
+.info--mobile .info__logo_mts,
+body.is-mobile .info__logo_mts,
+[data-platform="mobile"] .leaderboards__logo,
+.leaderboards--mobile .leaderboards__logo,
+body.is-mobile .leaderboards__logo,
+[data-platform="mobile"] .sub__top_logo,
+.sub--mobile .sub__top_logo,
+body.is-mobile .sub__top_logo,
+[data-platform="mobile"] .loading__content_logo,
+.loading--mobile .loading__content_logo,
+body.is-mobile .loading__content_logo,
+[data-platform="mobile"] .end__content_top_logo,
+.end--mobile .end__content_top_logo,
+body.is-mobile .end__content_top_logo,
+[data-platform="mobile"] .game__board_wrap_logo,
+.game--mobile .game__board_wrap_logo,
+body.is-mobile .game__board_wrap_logo,
+[data-platform="mobile"] .game__finished_logo img,
+.game--mobile .game__finished_logo img,
+body.is-mobile .game__finished_logo img {
+  position: fixed !important;
+  top: var(--tg-header-center-y, 58px) !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-sizing: border-box !important;
+  z-index: 99 !important;
+  pointer-events: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (max-width: 600px) {
+  .menu__logo,
+  .info__logo_mts,
+  .leaderboards__logo,
+  .sub__top_logo,
+  .loading__content_logo,
+  .end__content_top_logo,
+  .game__board_wrap_logo,
+  .game__finished_logo img {
+    position: fixed !important;
+    top: var(--tg-header-center-y, 58px) !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: 36px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    z-index: 99 !important;
+    pointer-events: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+[data-platform="desktop"],
+body.is-desktop {
+  .menu__logo,
+  .info__logo_mts,
+  .leaderboards__logo,
+  .sub__top_logo,
+  .loading__content_logo,
+  .end__content_top_logo,
+  .game__board_wrap_logo,
+  .game__finished_logo img {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 41px !important;
+    height: 41px !important;
+    margin: 0 auto !important;
+    pointer-events: auto !important;
+  }
 }
