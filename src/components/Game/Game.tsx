@@ -15,6 +15,7 @@ import { submitAnswer } from "../../api/answer";
 import type { SubmitAnswerResponse } from "../../api/answer";
 import { fetchAndHydrateUserData } from "../../api/userData";
 import { formatNbsp } from "../../utils/typography";
+import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 // Images
 import valid from "../../assets/images/valid-kov.png";
@@ -53,6 +54,7 @@ const TOTAL_QUESTIONS_PER_ROUND = 25;
 const QUESTION_TIMER_SECONDS = 300;
 
 function Game() {
+  const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const attempt = useAppStore((state) => state.attempt);
@@ -700,7 +702,10 @@ function Game() {
   };
 
   return (
-    <div className="game">
+    <div
+      className={`game ${isMobile ? "game--mobile" : "game--desktop"}`}
+      data-platform={isMobile ? "mobile" : "desktop"}
+    >
       <div className="game__content">
         {/* SCREEN 1: BOARD */}
         {screen === "board" && (

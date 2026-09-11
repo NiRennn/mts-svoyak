@@ -47,9 +47,43 @@
   justify-content: space-between;
 }
 
+[data-platform="mobile"] .game__board_wrap_logo-svoyak,
+.game--mobile .game__board_wrap_logo-svoyak,
+body.is-mobile .game__board_wrap_logo-svoyak {
+  justify-content: flex-end;
+}
+
 .game__board_wrap_logo {
   width: 41px;
   height: 41px;
+}
+
+[data-platform="mobile"] .game__board_wrap_logo,
+.game--mobile .game__board_wrap_logo,
+body.is-mobile .game__board_wrap_logo {
+  position: fixed;
+  top: var(--tg-header-center-y, 58px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  z-index: 50;
+  pointer-events: none;
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+[data-platform="desktop"] .game__board_wrap_logo,
+.game--desktop .game__board_wrap_logo,
+body.is-desktop .game__board_wrap_logo {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 41px;
+  height: 41px;
+  margin: 0 auto;
+  pointer-events: auto;
 }
 
 .game__board_wrap_svoyak {
