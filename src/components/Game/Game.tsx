@@ -1201,7 +1201,7 @@ function Game() {
               <>
                 <div className="game__modal_host_wrap">
                   <div className="game__modal_badge_wrap">
-                    <h2 className="game__modal_title">Не верно!</h2>
+                    <h2 className="game__modal_title">Неверно!</h2>
                     <p className="game__modal_desc">
                       {formatNbsp(modalFeedbackText || WRONG_ANSWER_PHRASES[0])}
                     </p>
