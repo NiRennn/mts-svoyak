@@ -16,6 +16,7 @@ import type { SubmitAnswerResponse } from "../../api/answer";
 import { fetchAndHydrateUserData } from "../../api/userData";
 import { formatNbsp } from "../../utils/typography";
 import { isMobileTelegram } from "../../utils/telegramPlatform";
+import { preloadImageSrcs } from "../../utils/preload";
 
 // Images
 import valid from "../../assets/images/valid-kov.png";
@@ -175,6 +176,11 @@ function Game() {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Preload and decode critical modal host images immediately on Game mount
+  useEffect(() => {
+    preloadImageSrcs([valid, invalid, timeHost, modHost]);
+  }, []);
 
   // Telegram BackButton support for question selection board
   useEffect(() => {
@@ -748,6 +754,26 @@ function Game() {
       className={`game ${isMobile ? "game--mobile" : "game--desktop"}`}
       data-platform={isMobile ? "mobile" : "desktop"}
     >
+      {/* Hidden container to keep GPU textures of host illustrations permanently loaded and hot */}
+      <div
+        style={{
+          position: "fixed",
+          top: -9999,
+          left: -9999,
+          width: 1,
+          height: 1,
+          opacity: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}
+        aria-hidden="true"
+      >
+        <img src={valid} alt="" loading="eager" decoding="sync" />
+        <img src={invalid} alt="" loading="eager" decoding="sync" />
+        <img src={timeHost} alt="" loading="eager" decoding="sync" />
+        <img src={modHost} alt="" loading="eager" decoding="sync" />
+      </div>
+
       <div className="game__content">
         {/* SCREEN 1: BOARD */}
         {screen === "board" && (
@@ -1154,6 +1180,8 @@ function Game() {
                     src={valid}
                     alt="Correct"
                     className="game__modal_host_img"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
                 <div className="game__modal_btn_wrap">
@@ -1192,6 +1220,8 @@ function Game() {
                     src={invalid}
                     alt="Wrong"
                     className="game__modal_host_img"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
 
@@ -1221,6 +1251,8 @@ function Game() {
                     src={timeHost}
                     alt="Timeout"
                     className="game__modal_host_img"
+                    loading="eager"
+                    decoding="sync"
                   />
                 </div>
                 <div className="game__modal_btn_wrap">

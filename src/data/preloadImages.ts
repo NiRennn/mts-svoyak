@@ -35,17 +35,19 @@ import winGrayIcon from "../assets/icons/win-gray.svg";
 
 export const APP_PRELOAD_IMAGES: string[] = Array.from(
   new Set([
+    // Most critical game host illustrations (must be ready immediately)
+    validHost,
+    invalidHost,
+    timeHost,
+    modHost,
+
     // Backgrounds & textures
     bgMain,
     bgLoader,
     bgMenu,
     noise,
 
-    // Characters & illustrations
-    validHost,
-    invalidHost,
-    timeHost,
-    modHost,
+    // Other characters & illustrations
     menuHost,
     loaderHost,
     infoMan,

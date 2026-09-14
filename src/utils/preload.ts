@@ -4,148 +4,110 @@ export type PreloadImageResult = {
   error?: unknown;
 };
 
-// Persistent in-memory cache to prevent garbage collection and eliminate re-decoding
+// Persistent in-memory cache to keep decoded images pinned in memory
 export const imageMemoryCache = new Map<string, HTMLImageElement>();
 
-const CACHE_STORAGE_NAME = "mts-svoyak-v1";
+// Active in-flight promises to prevent duplicate concurrent network requests
+const promiseCache = new Map<string, Promise<PreloadImageResult>>();
 
-/**
- * Attempts to persist the image in the browser's CacheStorage and HTTP cache
- * so subsequent page opens / sessions in Telegram WebApp load instantly from disk.
- */
-const cacheInStorage = async (src: string): Promise<void> => {
-  if (
-    typeof window === "undefined" ||
-    !src ||
-    src.startsWith("data:") ||
-    src.startsWith("blob:")
-  ) {
-    return;
+export const preloadImageSrc = (
+  src: string,
+  timeoutMs = 7000,
+): Promise<PreloadImageResult> => {
+  if (!src) {
+    return Promise.resolve({
+      src,
+      ok: false,
+      error: "Empty image src",
+    });
   }
 
-  // 1. Try CacheStorage API
-  if ("caches" in window) {
-    try {
-      const cache = await caches.open(CACHE_STORAGE_NAME);
-      const matched = await cache.match(src);
-      if (!matched) {
-        await cache.add(src);
-        return;
-      }
-    } catch {
-      // Ignore CacheStorage errors (e.g. unsupported scheme, opaque responses)
-    }
+  // If already loaded and decoded into memory
+  if (imageMemoryCache.has(src)) {
+    return Promise.resolve({
+      src,
+      ok: true,
+    });
   }
 
-  // 2. Fallback to fetch with force-cache
-  try {
-    await fetch(src, { cache: "force-cache" });
-  } catch {
-    // Ignore network error in background cache
+  // If already in-flight, return the existing promise
+  if (promiseCache.has(src)) {
+    return promiseCache.get(src)!;
   }
-};
 
-/**
- * Loads an image via HTMLImageElement and triggers rasterization/decoding
- * directly into GPU/memory so it's ready for immediate render.
- */
-const loadImageElement = (src: string, timeoutMs = 8000): Promise<boolean> => {
-  return new Promise((resolve) => {
+  const promise = new Promise<PreloadImageResult>((resolve) => {
     let settled = false;
 
-    const finish = (ok: boolean) => {
+    const finish = (ok: boolean, error?: unknown) => {
       if (settled) return;
       settled = true;
-      resolve(ok);
+      if (timer) window.clearTimeout(timer);
+      promiseCache.delete(src);
+      resolve({ src, ok, error });
     };
 
     const timer = window.setTimeout(() => {
-      finish(false);
+      finish(false, new Error("Preload timeout"));
     }, timeoutMs);
 
     const img = new Image();
 
-    img.onload = async () => {
-      window.clearTimeout(timer);
+    const handleLoaded = async () => {
       imageMemoryCache.set(src, img);
-
       if (typeof img.decode === "function") {
         try {
           await img.decode();
         } catch {
-          // Decode error (e.g. SVGs without dimensions), image is still loaded
+          // Decode error (e.g. SVGs without dimensions or already rendered), image is still valid
         }
       }
-
       finish(true);
     };
 
-    img.onerror = () => {
-      window.clearTimeout(timer);
-      finish(false);
-    };
+    img.onload = handleLoaded;
+    img.onerror = (e) => finish(false, e);
 
     img.src = src;
 
-    // In case the image is already cached synchronously
+    // Check if browser resolved it synchronously from disk/memory cache
     if (img.complete && img.naturalWidth > 0) {
-      window.clearTimeout(timer);
-      imageMemoryCache.set(src, img);
-      if (typeof img.decode === "function") {
-        img
-          .decode()
-          .catch(() => {})
-          .finally(() => finish(true));
-      } else {
-        finish(true);
-      }
+      handleLoaded();
     }
   });
+
+  promiseCache.set(src, promise);
+  return promise;
 };
 
-export const preloadImageSrc = async (
-  src: string,
-  timeoutMs = 8000,
-): Promise<PreloadImageResult> => {
-  if (!src) {
-    return {
-      src,
-      ok: false,
-      error: "Empty image src",
-    };
-  }
-
-  // Already cached and decoded in memory
-  if (imageMemoryCache.has(src)) {
-    return {
-      src,
-      ok: true,
-    };
-  }
-
-  // Persist in CacheStorage / HTTP cache in background
-  cacheInStorage(src).catch(() => {});
-
-  try {
-    const ok = await loadImageElement(src, timeoutMs);
-    return {
-      src,
-      ok,
-      ...(ok ? {} : { error: "Failed to load or decode image" }),
-    };
-  } catch (error) {
-    return {
-      src,
-      ok: false,
-      error,
-    };
-  }
-};
-
+/**
+ * Preloads images with a controlled concurrency limit (default 6)
+ * to avoid congesting mobile WebView HTTP connection pools.
+ */
 export const preloadImageSrcs = async (
   srcs: string[],
+  concurrency = 6,
 ): Promise<PreloadImageResult[]> => {
   const uniqueSrcs = Array.from(new Set(srcs.filter(Boolean)));
+  if (!uniqueSrcs.length) return [];
 
-  return Promise.all(uniqueSrcs.map((src) => preloadImageSrc(src)));
+  const results: PreloadImageResult[] = [];
+  let index = 0;
+
+  const worker = async () => {
+    while (index < uniqueSrcs.length) {
+      const current = uniqueSrcs[index++];
+      try {
+        const res = await preloadImageSrc(current);
+        results.push(res);
+      } catch (err) {
+        results.push({ src: current, ok: false, error: err });
+      }
+    }
+  };
+
+  const workerCount = Math.min(concurrency, uniqueSrcs.length);
+  const workers = Array.from({ length: workerCount }, () => worker());
+  await Promise.all(workers);
+
+  return results;
 };
