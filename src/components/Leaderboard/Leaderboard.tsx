@@ -4,13 +4,61 @@ import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
 import { useAppStore } from "../../store/appStore";
 import { fetchLeaderboard } from "../../api/leaderboard";
-import type { LeaderboardResponse } from "../../api/leaderboard";
+import type { LeaderboardResponse, LeaderboardUser } from "../../api/leaderboard";
+import type { UserDto } from "../../store/appStore";
 
 import logo from "../../assets/icons/mts-logo.svg";
 import info from "../../assets/icons/info.svg";
 import lead from "../../assets/images/lead3000.png";
 import playerIcon from "../../assets/icons/player.png";
 import { isMobileTelegram } from "../../utils/telegramPlatform";
+
+const isTelegramUsername = (val: string): boolean => {
+  const clean = val.replace(/^@+/, "");
+  return /^[a-zA-Z0-9_]{5,32}$/.test(clean);
+};
+
+const getLeaderboardDisplayName = (
+  item: LeaderboardUser,
+  fallback: string,
+  currentUser: UserDto | null,
+): string => {
+  const isMe =
+    currentUser &&
+    (currentUser.tg_id === item.user_id || currentUser.user_id === item.user_id);
+
+  // If this item represents the current user and we know they have no username in Telegram
+  if (isMe && !currentUser.username) {
+    const rawName = currentUser.first_name || item.first_name || item.username;
+    if (rawName) {
+      return rawName.replace(/^@+/, "");
+    }
+    return fallback;
+  }
+
+  // If item has explicit first_name and no username
+  if (!item.username && item.first_name) {
+    return item.first_name.replace(/^@+/, "");
+  }
+
+  const name = item.username || item.first_name;
+  if (!name) {
+    return fallback;
+  }
+
+  // If the backend provided first_name and username is identical to first_name
+  if (item.first_name && item.username === item.first_name) {
+    return item.first_name.replace(/^@+/, "");
+  }
+
+  // Check if it's a valid Telegram username (Latin, digits, underscores, 5-32 chars)
+  if (isTelegramUsername(name)) {
+    return name.startsWith("@") ? name : `@${name}`;
+  }
+
+  // It's a first name / display name (Cyrillic, spaces, special characters, etc.) -> remove '@'
+  return name.replace(/^@+/, "");
+};
 
 function Leaderboard() {
   const isMobile = isMobileTelegram();
@@ -153,11 +201,7 @@ function Leaderboard() {
                 №{data.me.rank}
               </span>
               <span className="leaderboards__item_username">
-                {data.me.username
-                  ? data.me.username.startsWith("@")
-                    ? data.me.username
-                    : `@${data.me.username}`
-                  : "ЭТО ВЫ"}
+                {getLeaderboardDisplayName(data.me, "ЭТО ВЫ", user)}
               </span>
 
             </div>
@@ -205,11 +249,7 @@ function Leaderboard() {
                       №{item.rank}
                     </span>
                     <span className="leaderboards__item_username">
-                      {item.username
-                        ? item.username.startsWith("@")
-                          ? item.username
-                          : `@${item.username}`
-                        : "Участник"}
+                      {getLeaderboardDisplayName(item, "Участник", user)}
                     </span>
                   </div>
 

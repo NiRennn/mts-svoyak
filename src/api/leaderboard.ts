@@ -1,4 +1,4 @@
-﻿import { getTelegramAuthHeaders } from "./telegramAuth";
+import { getTelegramAuthHeaders } from "./telegramAuth";
 
 const API_ORIGIN = "https://brother-in-law.brandservicebot.ru";
 
@@ -6,6 +6,7 @@ export type LeaderboardUser = {
   rank: number;
   user_id: number;
   username: string | null;
+  first_name?: string | null;
   score: number;
   qualified: boolean;
 };
