@@ -295,6 +295,7 @@ body.is-desktop .game__board_wrap_logo {
   position: relative;
   overflow: hidden;
   z-index: 0;
+  // flex: 1;
 
   &::before {
     content: "";

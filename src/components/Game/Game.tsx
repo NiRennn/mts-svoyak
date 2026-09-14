@@ -53,6 +53,31 @@ type ModalResult =
 const TOTAL_QUESTIONS_PER_ROUND = 25;
 const QUESTION_TIMER_SECONDS = 300;
 
+const CORRECT_ANSWER_PHRASES = [
+  "Поздравляю, ты явно умнее одного постоянного гостя шоу!",
+  "В точку! А ты точно не жульничаешь?",
+  "Кто-то точно не прогуливал школу, в отличии от меня…",
+  "Приз все ближе и ближе к тебе…",
+  "Да ты профи в этой теме!",
+  "Ты шаришь за разную дичь в интернете",
+  "Ты зашел сюда просто пофлексить, какой ты умный?",
+];
+
+const WRONG_ANSWER_PHRASES = [
+  "Вот такая подстава, дружок…",
+  "Но за старания – лайк!",
+  "Баллы спишем, но респект и уважуху отдаем тебе!",
+  "После этого ответа ты мне напомнил одного знакомого…",
+  "Тебе бы еще немного подучить лор интернета",
+  "Почти, но нет",
+  "Вопрос сложный, я б сам не ответил",
+];
+
+const getRandomPhrase = (phrases: string[]): string => {
+  const index = Math.floor(Math.random() * phrases.length);
+  return phrases[index];
+};
+
 function Game() {
   const isMobile = isMobileTelegram();
   const navigate = useNavigate();
@@ -131,11 +156,22 @@ function Game() {
     return "board";
   });
   const [modalResult, setModalResult] = useState<ModalResult>(null);
+  const [modalFeedbackText, setModalFeedbackText] = useState<string>("");
   const [modifierPoints, setModifierPoints] = useState<number>(0);
   const [timer, setTimer] = useState<number>(QUESTION_TIMER_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [lastSubmitResponse, setLastSubmitResponse] =
     useState<SubmitAnswerResponse | null>(null);
+
+  const handleShowAnswerResult = (isCorrect: boolean) => {
+    if (isCorrect) {
+      setModalFeedbackText(getRandomPhrase(CORRECT_ANSWER_PHRASES));
+      setModalResult("correct");
+    } else {
+      setModalFeedbackText(getRandomPhrase(WRONG_ANSWER_PHRASES));
+      setModalResult("wrong");
+    }
+  };
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -290,6 +326,7 @@ function Game() {
     setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
     // setTimer(QUESTION_TIMER_SECONDS);
     setModalResult(null);
+    setModalFeedbackText("");
 
     if (q.is_modifier) {
       setScreen("modifier");
@@ -417,9 +454,9 @@ function Game() {
         setTotalScore(res.attempt_points);
         setLastSubmitResponse(res);
         if (res.is_correct) {
-          setModalResult("correct");
+          handleShowAnswerResult(true);
         } else {
-          setModalResult("wrong");
+          handleShowAnswerResult(false);
         }
       } catch (err) {
         console.error("Error submitting answer:", err);
@@ -429,10 +466,10 @@ function Game() {
         );
         if (isCorrect) {
           setTotalScore((prev) => prev + activeQuestion.value);
-          setModalResult("correct");
+          handleShowAnswerResult(true);
         } else {
           setTotalScore((prev) => prev - activeQuestion.value);
-          setModalResult("wrong");
+          handleShowAnswerResult(false);
         }
       } finally {
         setIsSubmitting(false);
@@ -445,10 +482,10 @@ function Game() {
       );
       if (isCorrect) {
         setTotalScore((prev) => prev + activeQuestion.value);
-        setModalResult("correct");
+        handleShowAnswerResult(true);
       } else {
         setTotalScore((prev) => prev - activeQuestion.value);
-        setModalResult("wrong");
+        handleShowAnswerResult(false);
       }
     }
   };
@@ -566,6 +603,7 @@ function Game() {
 
   const handleModalContinue = () => {
     setModalResult(null);
+    setModalFeedbackText("");
     setActiveQuestion(null);
     setIsInputActive(false);
     setUserAnswer("");
@@ -599,6 +637,7 @@ function Game() {
       setIsInputActive(false);
       setUserAnswer("");
       setModalResult(null);
+      setModalFeedbackText("");
       setScreen("board");
     } else {
       setScreen("game-finished");
@@ -629,6 +668,7 @@ function Game() {
         setIsInputActive(false);
         setUserAnswer("");
         setModalResult(null);
+        setModalFeedbackText("");
         setScreen("board");
         return;
       } catch (err) {
@@ -642,6 +682,8 @@ function Game() {
     setActiveQuestion(null);
     setIsInputActive(false);
     setUserAnswer("");
+    setModalResult(null);
+    setModalFeedbackText("");
     setScreen("board");
   };
 
@@ -1095,7 +1137,7 @@ function Game() {
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Верно!</h2>
                     <p className="game__modal_desc">
-                      Поздравляю, ты&nbsp;явно умнее одного постоянного гостя шоу!
+                      {formatNbsp(modalFeedbackText || CORRECT_ANSWER_PHRASES[0])}
                     </p>
                     <div className="game__modal_pill_badge game__modal_pill_badge--plus">
                       <span className="game__modal_pill_badge_text">
@@ -1133,7 +1175,7 @@ function Game() {
                   <div className="game__modal_badge_wrap">
                     <h2 className="game__modal_title">Не верно!</h2>
                     <p className="game__modal_desc">
-                      Вот такая подстава, дружок…
+                      {formatNbsp(modalFeedbackText || WRONG_ANSWER_PHRASES[0])}
                     </p>
                     <div className="game__modal_pill_badge game__modal_pill_badge--minus">
                       <span className="game__modal_pill_badge_text">

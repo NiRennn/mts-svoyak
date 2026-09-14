@@ -150,14 +150,18 @@ function Loading() {
     tg?.setBottomBarColor?.("#f3f9ff");
 
     const preloadImages = async () => {
-      const results = await preloadImageSrcs(APP_PRELOAD_IMAGES);
+      try {
+        const results = await preloadImageSrcs(APP_PRELOAD_IMAGES);
 
-      const failedImages = results
-        .filter((result) => !result.ok)
-        .map((result) => result.src);
+        const failedImages = results
+          .filter((result) => !result.ok)
+          .map((result) => result.src);
 
-      if (failedImages.length) {
-        console.warn("[preload] failed images:", failedImages);
+        if (failedImages.length) {
+          console.warn("[preload] failed images:", failedImages);
+        }
+      } catch (err) {
+        console.warn("[preload] error during image preloading:", err);
       }
     };
 
