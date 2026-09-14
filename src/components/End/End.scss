@@ -13,10 +13,7 @@
       var(--tg-content-safe-area-inset-right, 0px) +
         var(--tg-safe-area-inset-right, 0px)
     )
-    calc(
-      var(--tg-content-safe-area-inset-bottom, 0px) +
-        var(--tg-safe-area-inset-bottom, 0px)
-    )
+    0
     calc(
       var(--tg-content-safe-area-inset-left, 0px) +
         var(--tg-safe-area-inset-left, 0px)
@@ -142,7 +139,6 @@ body.is-desktop .end__content_top_logo {
   margin-bottom: 18px;
   max-width: 360px;
   letter-spacing: -1%;
-
 }
 
 .end__content_mid_btn {
@@ -158,7 +154,9 @@ body.is-desktop .end__content_top_logo {
   font-size: 16px;
   line-height: 55.08px;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -180,7 +178,11 @@ body.is-desktop .end__content_top_logo {
     #f3f3f3 68.83%
   );
   background-clip: padding-box;
-  padding: 25px;
+  padding: 25px 25px
+    calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 20px
+    );
 }
 
 .end__content_bot_list {
@@ -205,7 +207,9 @@ body.is-desktop .end__content_top_logo {
   background-color: #ffffff;
   border: 1px solid #00000014;
   animation: itemFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.25s ease;
 
   &:active {
     transform: scale(0.985);
