@@ -18,7 +18,7 @@ import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 const CHANNEL_URL = "https://t.me/eto_riil";
 
-function Menu() {
+function Menu() { 
   const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);

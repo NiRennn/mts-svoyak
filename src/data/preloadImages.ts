@@ -1,7 +1,7 @@
 // Backgrounds & textures
 import bgMain from "../assets/images/backgrounds/bg.jpg";
 import bgLoader from "../assets/images/backgrounds/bg-loader.jpg";
-import bgMenu from "../assets/images/backgrounds/bg-menu.jpg";
+// import bgMenu from "../assets/images/backgrounds/bg-menu.jpg";
 import noise from "../assets/images/noise.png";
 
 // Characters & illustrations
@@ -44,7 +44,6 @@ export const APP_PRELOAD_IMAGES: string[] = Array.from(
     // Backgrounds & textures
     bgMain,
     bgLoader,
-    bgMenu,
     noise,
 
     // Other characters & illustrations
