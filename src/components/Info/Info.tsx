@@ -91,19 +91,19 @@ function Info() {
     attempts.some(
       (a) =>
         Boolean(a.is_finished) &&
-        ((a.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-          (bestPoints ?? 0) >= (qualifyThreshold || 3000)),
+        ((a.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+          (bestPoints ?? 0) >= (qualifyThreshold || 2000)),
     );
 
   const isQualifiedUser =
     hasQualified ||
     hasFinishedQualifiedAttempt ||
     (isCurrentAttemptFinished &&
-      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-        (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
+      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+        (bestPoints ?? 0) >= (qualifyThreshold || 2000))) ||
     (!canPlay &&
       Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
-        (qualifyThreshold || 3000));
+        (qualifyThreshold || 2000));
 
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
@@ -190,7 +190,7 @@ function Info() {
                 Отвечайте верно и&nbsp;выигрывайте призы!
               </h1>
               <span className="info__main_top_text">
-                с&nbsp;00 по&nbsp;00&nbsp;сентября, наберите больше 3000&nbsp;очков, отвечая на&nbsp;вопросы
+                с&nbsp;00 по&nbsp;00&nbsp;сентября, наберите больше 2000&nbsp;очков, отвечая на&nbsp;вопросы
                 своей игры, и&nbsp;участвуйте в&nbsp;розыгрыше
               </span>
             </div>
@@ -211,7 +211,7 @@ function Info() {
             </div>
             <div className="bubble re">
               <span className="info__main_bubbles_whitetext">
-                Наберите больше 3000&nbsp;очков, отвечая на&nbsp;вопросы правильно
+                Наберите больше 2000&nbsp;очков, отвечая на&nbsp;вопросы правильно
               </span>
               <span className="bubble_back-re">#2</span>
 
@@ -341,7 +341,7 @@ function Info() {
             <h2 className="menu_rules_modal__title">Правила</h2>
 
             <p className="menu_rules_modal__desc">
-              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите больше 3000&nbsp;очков
+              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите больше 2000&nbsp;очков
               и&nbsp;участвуйте в&nbsp;розыгрыше
             </p>
 

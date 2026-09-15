@@ -37,7 +37,7 @@ function Loading() {
       return appRoutes.END;
     }
 
-    const qualifyThreshold = userData.qualify_threshold ?? 3000;
+    const qualifyThreshold = userData.qualify_threshold ?? 2000;
     const bestPoints = userData.best_points ?? 0;
     const attemptPoints = userData.attempt?.total_points ?? 0;
     const answeredCount =

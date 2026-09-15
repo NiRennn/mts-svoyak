@@ -87,19 +87,19 @@ function Leaderboard() {
     attempts.some(
       (a) =>
         Boolean(a.is_finished) &&
-        ((a.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-          (bestPoints ?? 0) >= (qualifyThreshold || 3000)),
+        ((a.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+          (bestPoints ?? 0) >= (qualifyThreshold || 2000)),
     );
 
   const isQualifiedUser =
     hasQualified ||
     hasFinishedQualifiedAttempt ||
     (isCurrentAttemptFinished &&
-      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-        (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
+      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+        (bestPoints ?? 0) >= (qualifyThreshold || 2000))) ||
     (!canPlay &&
       Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
-        (qualifyThreshold || 3000));
+        (qualifyThreshold || 2000));
 
   // Telegram BackButton support
   useEffect(() => {
@@ -177,13 +177,13 @@ function Leaderboard() {
               className="leaderboards__main_info_left_icon"
             />
             <span className="leaderboards__main_info_left_text">
-              Наберите больше {data?.threshold ?? 3000}&nbsp;очков, чтобы принять
+              Наберите больше {data?.threshold ?? 2000}&nbsp;очков, чтобы принять
               участие в&nbsp;розыгрыше
             </span>
           </div>
           <img
             src={lead}
-            alt="3000"
+            alt=""
             className="leaderboards__main_info_right"
           />
         </div>

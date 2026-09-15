@@ -104,19 +104,19 @@ function Game() {
     attempts.some(
       (a) =>
         Boolean(a.is_finished) &&
-        ((a.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-          (bestPoints ?? 0) >= (qualifyThreshold || 3000)),
+        ((a.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+          (bestPoints ?? 0) >= (qualifyThreshold || 2000)),
     );
 
   const isQualifiedAndFinished =
     hasQualified ||
     hasFinishedQualifiedAttempt ||
     (isCurrentAttemptFinished &&
-      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 3000) ||
-        (bestPoints ?? 0) >= (qualifyThreshold || 3000))) ||
+      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 2000) ||
+        (bestPoints ?? 0) >= (qualifyThreshold || 2000))) ||
     (!canPlay &&
       Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
-        (qualifyThreshold || 3000));
+        (qualifyThreshold || 2000));
 
   // Determine starting round based on themes and already answered question IDs
   const calculateInitialRound = (
@@ -695,8 +695,8 @@ function Game() {
 
   const isQualified =
     (screen === "game-finished" || isQualifiedAndFinished) &&
-    (totalScore >= (qualifyThreshold || 3000) ||
-      (bestPoints ?? 0) >= (qualifyThreshold || 3000) ||
+    (totalScore >= (qualifyThreshold || 2000) ||
+      (bestPoints ?? 0) >= (qualifyThreshold || 2000) ||
       hasFinishedQualifiedAttempt ||
       Boolean(lastSubmitResponse?.qualified));
 
@@ -1079,7 +1079,7 @@ function Game() {
                 <p className="game__finished_subtitle">
                   {isQualified
                     ? `Вы\u00A0прошли все темы и\u00A0набрали  ${finishedScore}\u00A0очков\nтеперь вы\u00A0участвуете в\u00A0розыгрыше призов\nот\u00A0МТС\u00A0РИИЛ`
-                    : "Вы\u00A0прошли все темы, но\u00A0не\u00A0набрали 3000\u00A0очков для\u00A0участия в\u00A0розыгрыше, вы\u00A0можете повторить попытку еще\u00A0раз"}
+                    : "Вы\u00A0прошли все темы, но\u00A0не\u00A0набрали 2000\u00A0очков для\u00A0участия в\u00A0розыгрыше, вы\u00A0можете повторить попытку еще\u00A0раз"}
                 </p>
               </div>
 

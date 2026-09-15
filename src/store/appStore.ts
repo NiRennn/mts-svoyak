@@ -130,7 +130,7 @@ const initialState = {
   attempts: [],
   answered_question_ids: [],
   last_round: null,
-  qualify_threshold: 3000,
+  qualify_threshold: 2000,
   rounds: [],
   themes: [],
   winners: [],
@@ -212,7 +212,7 @@ export const useAppStore = create<AppState>((set) => ({
       } catch (e) {}
     }
 
-    const qualifyThreshold = data.qualify_threshold ?? 3000;
+    const qualifyThreshold = data.qualify_threshold ?? 2000;
     const bestPoints = data.best_points ?? 0;
     const attemptPoints = data.attempt?.total_points ?? 0;
     const answeredCount =
@@ -258,7 +258,7 @@ export const useAppStore = create<AppState>((set) => ({
         ? data.answered_question_ids
         : [],
       last_round: data.last_round ?? null,
-      qualify_threshold: data.qualify_threshold ?? 3000,
+      qualify_threshold: data.qualify_threshold ?? 2000,
       rounds: Array.isArray(data.rounds) ? data.rounds : [],
       themes: Array.isArray(data.themes) ? data.themes : [],
       winners: Array.isArray(data.winners) ? data.winners : [],
