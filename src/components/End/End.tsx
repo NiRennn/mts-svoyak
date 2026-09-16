@@ -17,7 +17,7 @@ function End() {
 
   const handleWinnerClick = () => {
     const tg = (window as any)?.Telegram?.WebApp;
-    const vkUrl = "https://vk.com/mts";
+    const vkUrl = "https://vk.ru/im?sel=-8458649";
 
     if (tg?.openLink) {
       tg.openLink(vkUrl);

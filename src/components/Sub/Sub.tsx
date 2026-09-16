@@ -14,6 +14,7 @@ import { isMobileTelegram } from "../../utils/telegramPlatform";
 type CheckStatus = "idle" | "checking" | "not-found";
 
 const CHANNEL_URL = "https://t.me/+X_Y-xncYDCAzZTJi";
+// const CHANNEL_URL = "https://t.me/eto_riil";
 
 function Sub() {
   const isMobile = isMobileTelegram();
@@ -75,7 +76,7 @@ function Sub() {
             <img src={subLogo} alt="" className="sub__mid_logo" />
             <h1 className="sub__mid_h">Подпишись на&nbsp;наш канал</h1>
             <p className="sub__mid_p">
-              Игра доступна подписчикам Telegram-канала РИИЛ МТС. Проверим
+              Игра доступна подписчикам Telegram-канала РИИЛ&nbsp;МТС. Проверим
               подписку и&nbsp;сразу откроем игровое поле.
             </p>
           </div>
@@ -122,8 +123,9 @@ function Sub() {
                     Подписка не&nbsp;найдена!
                   </h1>
                   <p className="sub__notfound_bottom_p">
-                    Мы&nbsp;не&nbsp;смогли найти вашу подписку на&nbsp;канал МТС&nbsp;РИИЛ. Повторите
-                    попытку еще&nbsp;раз!
+                    Мы&nbsp;не&nbsp;смогли найти вашу подписку на&nbsp;канал
+                    МТС&nbsp;РИИЛ <br />
+                    Повторите попытку еще&nbsp;раз!
                   </p>
                 </div>
 

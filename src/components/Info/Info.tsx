@@ -180,7 +180,7 @@ function Info() {
     >
       <div className="info__scroll">
         <div className="info__logo_wrapper">
-          <img src={logo} alt="" className="info__logo_mts"/>
+          <img src={logo} alt="" className="info__logo_mts" />
           <img src={infoLogo} alt="" className="info__logo" />
         </div>
         <div className="info__main">
@@ -190,8 +190,9 @@ function Info() {
                 Отвечайте верно и&nbsp;выигрывайте призы!
               </h1>
               <span className="info__main_top_text">
-                с&nbsp;00 по&nbsp;00&nbsp;сентября, наберите больше 2000&nbsp;очков, отвечая на&nbsp;вопросы
-                своей игры, и&nbsp;участвуйте в&nbsp;розыгрыше
+                с&nbsp;27&nbsp;сентября по&nbsp;15&nbsp;октября играйте
+                в&nbsp;игру, набирайте больше 2000&nbsp;очков и&nbsp;участвуйте
+                в&nbsp;розыгрыше призов
               </span>
             </div>
             <img src={chelik} alt="" className="info__main_top_right" />
@@ -211,17 +212,17 @@ function Info() {
             </div>
             <div className="bubble re">
               <span className="info__main_bubbles_whitetext">
-                Наберите больше 2000&nbsp;очков, отвечая на&nbsp;вопросы правильно
+                Наберите больше 2000&nbsp;очков, отвечая на&nbsp;вопросы
+                правильно
               </span>
               <span className="bubble_back-re">#2</span>
-
             </div>
             <div className="bubble bl">
               <span className="info__main_bubbles_whitetext">
-                00&nbsp;сентября подведем итоги в&nbsp;приложении и&nbsp;выберем 10&nbsp;победителей
+                19&nbsp;октября подведем итоги в&nbsp;приложении и&nbsp;выберем
+                10&nbsp;победителей
               </span>
               <span className="bubble_back-bl">#3</span>
-
             </div>
           </div>
 
@@ -257,7 +258,10 @@ function Info() {
             </div>
             {!isQualifiedUser && (
               <div className="info__btn_red_wrapper">
-                <button className="info__btn_red" onClick={handleStartGameClick}>
+                <button
+                  className="info__btn_red"
+                  onClick={handleStartGameClick}
+                >
                   <span className="info__btn_red_text">Начать игру</span>
                 </button>
               </div>
@@ -341,8 +345,8 @@ function Info() {
             <h2 className="menu_rules_modal__title">Правила</h2>
 
             <p className="menu_rules_modal__desc">
-              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите больше 2000&nbsp;очков
-              и&nbsp;участвуйте в&nbsp;розыгрыше
+              Отвечайте на&nbsp;вопросы и&nbsp;зарабатывайте очки, наберите
+              больше 2000&nbsp;очков и&nbsp;участвуйте в&nbsp;розыгрыше
             </p>
 
             <div className="menu_rules_modal__checkbox_row">
