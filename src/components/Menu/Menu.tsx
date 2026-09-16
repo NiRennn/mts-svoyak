@@ -10,7 +10,7 @@ import { acceptRules } from "../../api/rules";
 import pres from "../../assets/icons/present.svg";
 import lead from "../../assets/icons/leaderboard.svg";
 // import kov from "../../assets/images/loader-kov1.png";
-import kov from "../../assets/images/menu-kov.png";
+import kov from "../../assets/images/menu-kov1.png";
 import logo from "../../assets/icons/mts-logo.svg";
 import { isMobileTelegram } from "../../utils/telegramPlatform";
 
