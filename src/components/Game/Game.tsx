@@ -206,72 +206,13 @@ function Game() {
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
-  const [isFullscreenCss, setIsFullscreenCss] = useState<boolean>(false);
 
   const handleCloseVideoModal = () => {
     if (modalVideoRef.current) {
       modalVideoRef.current.pause();
     }
-    setIsFullscreenCss(false);
     setIsVideoModalOpen(false);
   };
-
-  const handleEnterFullscreen = () => {
-    const video = modalVideoRef.current;
-    if (!video) return;
-
-    if (video.paused) {
-      video.play().catch(() => {});
-    }
-
-    // 1. iOS Safari / WebKit native fullscreen
-    if (typeof (video as any).webkitEnterFullscreen === "function") {
-      try {
-        (video as any).webkitEnterFullscreen();
-        return;
-      } catch (err) {
-        console.warn("webkitEnterFullscreen error:", err);
-      }
-    }
-
-    // 2. Standard HTML5 Fullscreen API (Android / Desktop)
-    if (typeof video.requestFullscreen === "function") {
-      video
-        .requestFullscreen()
-        .then(() => {})
-        .catch((err) => {
-          console.warn("requestFullscreen blocked by WebView:", err);
-          setIsFullscreenCss((prev) => !prev);
-        });
-      return;
-    }
-
-    if (typeof (video as any).webkitRequestFullscreen === "function") {
-      try {
-        (video as any).webkitRequestFullscreen();
-        return;
-      } catch (e) {
-        setIsFullscreenCss((prev) => !prev);
-      }
-    }
-
-    // 3. Fallback: CSS Fullscreen (100% of Telegram window)
-    setIsFullscreenCss((prev) => !prev);
-  };
-
-  useEffect(() => {
-    const video = modalVideoRef.current;
-    if (!video || !isVideoModalOpen) return;
-
-    const handleWebkitEndFullscreen = () => {
-      // Exited iOS native fullscreen
-    };
-
-    video.addEventListener("webkitendfullscreen", handleWebkitEndFullscreen);
-    return () => {
-      video.removeEventListener("webkitendfullscreen", handleWebkitEndFullscreen);
-    };
-  }, [isVideoModalOpen]);
 
   const activeMediaType = getMediaType(activeQuestion);
   const isVideoQuestion = activeMediaType === "video";
@@ -291,10 +232,6 @@ function Game() {
     if (!backButton) return;
 
     const handleTelegramBack = () => {
-      if (isFullscreenCss) {
-        setIsFullscreenCss(false);
-        return;
-      }
       if (isVideoModalOpen) {
         handleCloseVideoModal();
         return;
@@ -317,7 +254,7 @@ function Game() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [screen, isVideoModalOpen, isFullscreenCss, navigate]);
+  }, [screen, isVideoModalOpen, navigate]);
 
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
@@ -1327,63 +1264,22 @@ function Game() {
         {/* Fullscreen Video Player Modal */}
         {isVideoModalOpen && activeQuestion && activeQuestion.media_url && (
           <div
-            className={`game__video_modal_overlay ${
-              isFullscreenCss ? "game__video_modal_overlay--fullscreen-css" : ""
-            }`}
+            className="game__video_modal_overlay"
             onClick={handleCloseVideoModal}
           >
             <div
-              className={`game__video_modal_content ${
-                isFullscreenCss ? "game__video_modal_content--fullscreen-css" : ""
-              }`}
+              className="game__video_modal_content"
               onClick={(e) => e.stopPropagation()}
             >
-              <div
-                className={`game__video_modal_player_wrap ${
-                  isFullscreenCss ? "game__video_modal_player_wrap--fullscreen-css" : ""
-                }`}
-              >
+              <div className="game__video_modal_player_wrap">
                 <video
                   ref={modalVideoRef}
                   src={normalizeMediaUrl(activeQuestion.media_url)}
-                  className={`game__video_modal_player ${
-                    isFullscreenCss ? "game__video_modal_player--fullscreen-css" : ""
-                  }`}
+                  className="game__video_modal_player"
                   controls
                   autoPlay
                   playsInline
                 />
-
-                <button
-                  type="button"
-                  className="game__video_modal_expand_icon_btn"
-                  onClick={handleEnterFullscreen}
-                  aria-label="На весь экран"
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {isFullscreenCss ? (
-                      <>
-                        <path d="M4 14h6v6" />
-                        <path d="M20 10h-6V4" />
-                        <path d="M14 10l7-7" />
-                        <path d="M3 21l7-7" />
-                      </>
-                    ) : (
-                      <>
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                      </>
-                    )}
-                  </svg>
-                </button>
               </div>
 
               <button

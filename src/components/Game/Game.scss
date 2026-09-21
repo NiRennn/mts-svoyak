@@ -1780,11 +1780,6 @@ body.is-desktop .game__finished_logo {
   justify-content: center;
   padding: 20px;
   animation: questionFadeIn 0.25s ease;
-
-  &--fullscreen-css {
-    padding: 0;
-    background: #000000;
-  }
 }
 
 .game__video_modal_content {
@@ -1793,12 +1788,6 @@ body.is-desktop .game__finished_logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  &--fullscreen-css {
-    max-width: 100%;
-    height: 100%;
-    justify-content: center;
-  }
 }
 
 .game__video_modal_player_wrap {
@@ -1810,40 +1799,6 @@ body.is-desktop .game__finished_logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-
-  &--fullscreen-css {
-    border-radius: 0;
-    height: 100%;
-    width: 100%;
-    box-shadow: none;
-  }
-}
-
-.game__video_modal_expand_icon_btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  padding: 0;
-  color: #ffffff;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-
-  &:active {
-    transform: scale(0.92);
-    background: rgba(0, 0, 0, 0.75);
-  }
 }
 
 .game__video_modal_player {
@@ -1853,13 +1808,6 @@ body.is-desktop .game__finished_logo {
   border-radius: 32px;
   outline: none;
   background: #000000;
-
-  &--fullscreen-css {
-    max-height: 100vh;
-    border-radius: 0;
-    height: 100%;
-    object-fit: contain;
-  }
 }
 
 .game__video_modal_close_btn {
