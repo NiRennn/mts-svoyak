@@ -163,8 +163,8 @@ function Info() {
   const handleOpenTarif = () => {
     const tg = (window as any)?.Telegram?.WebApp;
 
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(CHANNEL_URL_TARIF);
+    if (tg?.openLink) {
+      tg.openLink(CHANNEL_URL_TARIF);
       return;
     }
 

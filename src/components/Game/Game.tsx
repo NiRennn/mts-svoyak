@@ -772,12 +772,11 @@ function Game() {
   }, [isQualified, screen, setCanPlay, setHasQualified]);
 
   const handleOpenChannel = () => {
-    const tg = (window as unknown as { Telegram?: { WebApp?: { openTelegramLink?: (url: string) => void } } })
-      ?.Telegram?.WebApp;
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(CHANNEL_URL);
+    const tg = (window as any)?.Telegram?.WebApp;
+    if (tg?.openLink) {
+      tg.openLink(CHANNEL_URL);
     } else {
-      window.open(CHANNEL_URL, "_blank");
+      window.open(CHANNEL_URL, "_blank", "noopener,noreferrer");
     }
   };
 

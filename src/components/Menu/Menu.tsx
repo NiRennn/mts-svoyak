@@ -78,8 +78,8 @@ function Menu() {
   const handleOpenChannelMenu = () => {
     const tg = (window as any)?.Telegram?.WebApp;
 
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(CHANNEL_URL_MENU);
+    if (tg?.openLink) {
+      tg.openLink(CHANNEL_URL_MENU);
       return;
     }
 
