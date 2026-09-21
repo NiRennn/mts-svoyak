@@ -24,6 +24,10 @@
   justify-content: flex-end;
   align-items: center;
   padding: 0;
+  padding-top: calc(
+    var(--tg-content-safe-area-inset-top, 0px) +
+      var(--tg-safe-area-inset-top, 0px) + 7px
+  );
 }
 
 .game__board_wrap_logo-svoyak {
@@ -92,7 +96,10 @@ body.is-desktop .game__board_wrap_logo {
   background-color: #ff0032;
   border: 1px solid #ffffff;
   border-radius: 70px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease,
+    box-shadow 0.25s ease;
 
   &:active:not(:disabled) {
     transform: scale(0.97);
@@ -154,7 +161,9 @@ body.is-desktop .game__board_wrap_logo {
   justify-content: center;
   gap: 4px;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -188,7 +197,8 @@ body.is-desktop .game__board_wrap_logo {
   justify-content: space-between;
   align-items: center;
   background-color: #ffffff;
-  padding: 28px 28px calc(
+  padding: 28px 28px
+    calc(
       var(--tg-content-safe-area-inset-bottom, 0px) +
         var(--tg-safe-area-inset-bottom, 0px) + 10px
     );
@@ -197,7 +207,6 @@ body.is-desktop .game__board_wrap_logo {
   z-index: 1;
   animation: cardSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   animation-delay: 0.1s;
-  
 }
 
 .game__bottom_user {
@@ -925,7 +934,9 @@ body.is-desktop .game__finished_logo {
   gap: 15px;
   cursor: pointer;
   padding: 18px 10px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.96);
@@ -966,7 +977,9 @@ body.is-desktop .game__finished_logo {
   text-transform: uppercase;
   cursor: pointer;
   padding: 12px 20px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -993,7 +1006,9 @@ body.is-desktop .game__finished_logo {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1022,7 +1037,9 @@ body.is-desktop .game__finished_logo {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1050,7 +1067,9 @@ body.is-desktop .game__finished_logo {
   background-color: #ff0032;
   border: 1px solid #ffffff;
   border-radius: 70px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1065,9 +1084,6 @@ body.is-desktop .game__finished_logo {
   color: #ffffff;
   text-transform: uppercase;
 }
-
-
-
 
 /* ==================== MODAL RESULTS ==================== */
 .game__modal_overlay {
@@ -1197,7 +1213,7 @@ body.is-desktop .game__finished_logo {
 .game__modal_btn_wrap {
   width: 100%;
   padding: 0 16px;
-    z-index: 31;
+  z-index: 31;
   position: absolute;
   bottom: calc(
     var(--tg-content-safe-area-inset-bottom, 0px) +
@@ -1219,7 +1235,9 @@ body.is-desktop .game__finished_logo {
   background-color: #ff0032;
   border: 1px solid #ffffff;
   border-radius: 70px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1392,7 +1410,9 @@ body.is-desktop .game__finished_logo {
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1421,7 +1441,9 @@ body.is-desktop .game__finished_logo {
   gap: 4px;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1539,7 +1561,9 @@ body.is-desktop .game__finished_logo {
   justify-content: center;
   cursor: pointer;
   z-index: 33;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -1691,8 +1715,6 @@ body.is-desktop .game__finished_logo {
     padding: 10px 16px;
   }
 
-
-
   .game__finished_card {
     padding: 10px 12px;
   }
@@ -1807,4 +1829,3 @@ body.is-desktop .game__finished_logo {
     transform: scale(0.96);
   }
 }
-

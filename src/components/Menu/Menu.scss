@@ -113,6 +113,7 @@ body.is-desktop .menu__logo {
   margin-bottom: -40px;
   position: relative;
   z-index: 1;
+  pointer-events: none;
 }
 
 .menu__btn_block {
@@ -178,7 +179,10 @@ body.is-desktop .menu__logo {
   color: #ffffff;
   text-transform: uppercase;
   padding: 29px 35px;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, opacity 0.22s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.25s ease,
+    opacity 0.22s ease;
 
   &:active {
     transform: scale(0.97);
@@ -211,7 +215,9 @@ body.is-desktop .menu__logo {
   border-radius: 30px;
   padding: 27px 0;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.25s ease;
 
   &:active {
     transform: scale(0.97);
@@ -248,7 +254,9 @@ body.is-desktop .menu__logo {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.25s ease;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.25s ease;
 
   &:active {
     transform: scale(0.97);
@@ -455,40 +463,38 @@ body.is-desktop .menu__logo {
       );
   }
 
-  
-.menu__btn_block_red-button {
-  max-height: 80px;
-  font-size: 14px;
-  line-height: 20px;
-  color: #ffffff;
-  padding: 20px 30px;
-}
+  .menu__btn_block_red-button {
+    max-height: 80px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #ffffff;
+    padding: 20px 30px;
+  }
 
-.menu__btn_block-horizontal {
+  .menu__btn_block-horizontal {
+    gap: 15px;
+  }
 
-  gap: 15px;
-}
+  .menu__btn_block_white-button {
+    max-height: 100px;
+    gap: 10px;
+    padding: 23px 0;
+  }
 
-.menu__btn_block_white-button {
-  max-height: 100px;
-  gap: 10px;
-  padding: 23px 0;
-}
+  .menu__btn_block_white-button-img {
+    width: 28px;
+    height: 32px;
+  }
 
-.menu__btn_block_white-button-img {
-  width: 28px;
-  height: 32px;
-}
+  .menu__btn_block_white-button-text {
+    font-size: 14px;
+    line-height: 16px;
+  }
 
-.menu__btn_block_white-button-text {
-  font-size: 14px;
-  line-height: 16px;
-}
-
-.menu__btn_block_trans-button {
-  max-height: 80px;
-  padding: 20px 30px;
-  font-size: 14px;
-  line-height: 20px;
-}
+  .menu__btn_block_trans-button {
+    max-height: 80px;
+    padding: 20px 30px;
+    font-size: 14px;
+    line-height: 20px;
+  }
 }
