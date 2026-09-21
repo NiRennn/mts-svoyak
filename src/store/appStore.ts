@@ -24,6 +24,8 @@ export type QuestionDto = {
   correct_answer?: string;
   synonyms?: string[];
   timer_sec?: number;
+  media_type?: string;
+  media_url?: string;
   comment?: string;
   [key: string]: any;
 };

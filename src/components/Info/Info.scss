@@ -105,7 +105,7 @@ body.is-mobile .info__scroll {
   padding: calc(
       var(--tg-content-safe-area-inset-top, 56px) +
         var(--tg-safe-area-inset-top, 30px) + 12px
-    )
+    ) 
     0 24px 0;
 }
 
@@ -292,11 +292,11 @@ body.is-desktop .info__scroll {
   gap: 6px;
 
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   z-index: 2;
   position: relative;
-  padding: 0 25px;
-  // margin-top: -60px;
+  padding: 35px 25px 0;
+  margin-top: -15px;
   margin-bottom: 24px;
 
   scroll-snap-type: x mandatory;
@@ -312,36 +312,67 @@ body.is-desktop .info__scroll {
 
 .slider_item {
   width: 100%;
-  // width: 168px;
-  // height: 186px;
   min-width: 168px;
-  //   height: 186px;
+  height: 186px;
+  position: relative;
 
   background-color: #ffffff;
   border-radius: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
 
   padding: 11px 17px 16px;
 
   scroll-snap-align: start;
-  overflow: hidden;
-  //   justify-content: center;
-
-  &--chemodan {
-    overflow: visible;
-  }
+  overflow: visible;
 }
 
 .slider_item_img {
-  // width: 100%;
-  width: 134px;
-  // height: 110px;
-  // flex: 0 0 110px;
-
+  position: absolute;
   object-fit: contain;
-  object-position: center;
+  pointer-events: none;
+}
+
+.smart {
+  width: 117px;
+  height: 141px;
+  left: 50%;
+  top: -29px;
+  transform: translateX(-50%);
+}
+
+.pristavka {
+  width: 114px;
+  height: 135px;
+  left: 50%;
+  top: -29px;
+  transform: translateX(-50%);
+}
+
+.watch {
+  width: 127px;
+  height: 139px;
+  left: 50%;
+  top: -15px;
+  transform: translateX(-50%);
+}
+
+.photo {
+  width: 155px;
+  height: 155px;
+  left: 50%;
+  top: -28px;
+  transform: translateX(-50%);
+}
+
+.kolonka {
+  width: 180px;
+  height: 120px;
+  left: 50%;
+  top: -4px;
+  transform: translateX(-50%);
 }
 
 .slider_item_name {
@@ -350,7 +381,6 @@ body.is-desktop .info__scroll {
   line-height: 18px;
   letter-spacing: -1%;
   text-align: center;
-  margin-bottom: 10px;
   min-height: 36px;
 }
 
@@ -575,6 +605,8 @@ body.is-desktop .info__scroll {
   font-size: 14px;
   line-height: 1;
   padding: 17px;
+    cursor: pointer;
+
 }
 
 .red {

@@ -16,7 +16,8 @@ import { isMobileTelegram } from "../../utils/telegramPlatform";
 
 // type MenuContentState = "game" | "all-found" | "finished";
 
-const CHANNEL_URL = "https://t.me/eto_riil";
+const CHANNEL_URL_MENU = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_menu";
+// const CHANNEL_URL_FINAL = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_final_igra";
 
 function Menu() { 
   const isMobile = isMobileTelegram();
@@ -74,16 +75,26 @@ function Menu() {
   const [isAgreed, setIsAgreed] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
 
-  const handleOpenChannel = () => {
+  const handleOpenChannelMenu = () => {
     const tg = (window as any)?.Telegram?.WebApp;
 
     if (tg?.openTelegramLink) {
-      tg.openTelegramLink(CHANNEL_URL);
+      tg.openTelegramLink(CHANNEL_URL_MENU);
       return;
     }
 
-    window.open(CHANNEL_URL, "_blank", "noopener,noreferrer");
+    window.open(CHANNEL_URL_MENU, "_blank", "noopener,noreferrer");
   };
+  // const handleOpenChannelFinal = () => {
+  //   const tg = (window as any)?.Telegram?.WebApp;
+
+  //   if (tg?.openTelegramLink) {
+  //     tg.openTelegramLink(CHANNEL_URL_FINAL);
+  //     return;
+  //   }
+
+  //   window.open(CHANNEL_URL_FINAL, "_blank", "noopener,noreferrer");
+  // };
 
   const handleStartGameClick = () => {
     const rulesAccepted = user?.rules_accepted ?? user?.rule ?? false;
@@ -163,7 +174,7 @@ function Menu() {
           </div>
           <button
             className="menu__btn_block_trans-button"
-            onClick={handleOpenChannel}
+            onClick={handleOpenChannelMenu}
           >
             Подключить <br />
             тариф риил

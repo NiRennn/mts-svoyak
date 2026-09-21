@@ -24,7 +24,7 @@ import invalid from "../../assets/images/invalid-kov.png";
 import timeHost from "../../assets/images/time-kov.png";
 import modHost from "../../assets/images/mod-kov.png";
 import roundHost1 from "../../assets/icons/round1.svg";
-import roundHost2 from "../../assets/icons/round2.svg";
+import roundHost2 from "../../assets/icons/round2.svg"; 
 import roundpass from "../../assets/icons/game-check.svg";
 import roundnotpass from "../../assets/icons/game-cross.svg";
 
@@ -34,7 +34,9 @@ import logo from "../../assets/icons/mts-logo.svg";
 import pres from "../../assets/icons/present.svg";
 import lead from "../../assets/icons/leaderboard.svg";
 
-const CHANNEL_URL = "https://t.me/eto_riil";
+const CHANNEL_URL = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_final_igra";
+
+
 
 type GameScreen =
   | "board"
@@ -77,6 +79,31 @@ const WRONG_ANSWER_PHRASES = [
 const getRandomPhrase = (phrases: string[]): string => {
   const index = Math.floor(Math.random() * phrases.length);
   return phrases[index];
+};
+
+const normalizeMediaUrl = (url?: string): string => {
+  if (!url) return "";
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    url.startsWith("http://")
+  ) {
+    return url.replace(/^http:\/\//i, "https://");
+  }
+  return url;
+};
+
+const getMediaType = (q?: Question | null): "text" | "image" | "video" => {
+  if (!q) return "text";
+  if (q.media_type === "video") return "video";
+  if (q.media_type === "image") return "image";
+  if (q.media_type === "text") return "text";
+  if (q.media_url) {
+    const url = q.media_url.toLowerCase();
+    if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/)) return "video";
+    if (url.match(/\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/)) return "image";
+  }
+  return "text";
 };
 
 function Game() {
@@ -176,13 +203,28 @@ function Game() {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const modalVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
+
+  const handleCloseVideoModal = () => {
+    if (modalVideoRef.current) {
+      modalVideoRef.current.pause();
+    }
+    setIsVideoModalOpen(false);
+  };
+
+  const activeMediaType = getMediaType(activeQuestion);
+  const isVideoQuestion = activeMediaType === "video";
+  const isImageQuestion = activeMediaType === "image";
+  const hasMedia = isVideoQuestion || isImageQuestion;
 
   // Preload and decode critical modal host images immediately on Game mount
   useEffect(() => {
     preloadImageSrcs([valid, invalid, timeHost, modHost]);
   }, []);
 
-  // Telegram BackButton support for question selection board
+  // Telegram BackButton support for question selection board and video modal
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
     const backButton = tg?.BackButton;
@@ -190,10 +232,17 @@ function Game() {
     if (!backButton) return;
 
     const handleTelegramBack = () => {
+      if (isVideoModalOpen) {
+        handleCloseVideoModal();
+        return;
+      }
       navigate(appRoutes.MENU, { replace: true });
     };
 
-    if (screen === "board") {
+    if (isVideoModalOpen) {
+      backButton.show();
+      backButton.onClick(handleTelegramBack);
+    } else if (screen === "board") {
       backButton.show();
       backButton.onClick(handleTelegramBack);
     } else {
@@ -205,7 +254,7 @@ function Game() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [screen, navigate]);
+  }, [screen, isVideoModalOpen, navigate]);
 
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
@@ -228,6 +277,8 @@ function Game() {
               is_modifier: Boolean(q.is_modifier),
               modifier_value: q.modifier_value ?? 0,
               timer_sec: q.timer_sec ?? 30,
+              media_type: q.media_type,
+              media_url: q.media_url,
             }))
             .sort((a, b) => a.value - b.value),
         }))
@@ -304,6 +355,10 @@ function Game() {
       !modalResult &&
       !isSubmitting
     ) {
+      if (screen === "question" && isVideoQuestion) {
+        return;
+      }
+
       timerRef.current = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
@@ -321,7 +376,7 @@ function Game() {
         clearInterval(timerRef.current);
       }
     };
-  }, [screen, modalResult, isSubmitting]);
+  }, [screen, modalResult, isSubmitting, isVideoQuestion]);
 
   // Handlers
   const handleSelectQuestion = (q: Question) => {
@@ -329,6 +384,7 @@ function Game() {
     setActiveQuestion(q);
     setIsInputActive(false);
     setUserAnswer("");
+    handleCloseVideoModal();
     setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
     // setTimer(QUESTION_TIMER_SECONDS);
     setModalResult(null);
@@ -342,7 +398,7 @@ function Game() {
   };
 
   const handleTimeOut = async () => {
-    if (!activeQuestion || isSubmitting) return;
+    if (!activeQuestion || isSubmitting || isVideoQuestion) return;
     setIsSubmitting(true);
     const userId = user?.tg_id ?? user?.user_id;
 
@@ -382,6 +438,7 @@ function Game() {
 
   const handlePass = async () => {
     if (!activeQuestion || isSubmitting) return;
+    handleCloseVideoModal();
     if (timerRef.current) clearInterval(timerRef.current);
 
     setIsSubmitting(true);
@@ -439,6 +496,7 @@ function Game() {
     if (e) e.preventDefault();
     if (!activeQuestion || !userAnswer.trim() || isSubmitting) return;
 
+    handleCloseVideoModal();
     if (timerRef.current) clearInterval(timerRef.current);
 
     setIsSubmitting(true);
@@ -608,6 +666,7 @@ function Game() {
   };
 
   const handleModalContinue = () => {
+    handleCloseVideoModal();
     setModalResult(null);
     setModalFeedbackText("");
     setActiveQuestion(null);
@@ -832,7 +891,11 @@ function Game() {
         {screen === "question" && activeQuestion && (
           <div className="game__question_wrap">
             <div className="game__question_top">
-              <div className="game__question_top_badge">
+              <div
+                className={`game__question_top_badge ${
+                  isVideoQuestion ? "game__question_top_badge--no-timer" : ""
+                }`}
+              >
                 <div className="game__question_top_badge_theme-cost">
                   <span className="game__question_top_badge_theme">
                     {formatNbsp(activeQuestion.topic)}
@@ -841,29 +904,74 @@ function Game() {
                     {activeQuestion.value}
                   </div>
                 </div>
-                <div className="game__question_top_badge_timer">
-                  <span className="game__question_timer_text">{timer}&nbsp;сек</span>
+                {!isVideoQuestion && (
+                  <div className="game__question_top_badge_timer">
+                    <span className="game__question_timer_text">{timer}&nbsp;сек</span>
+                  </div>
+                )}
+              </div>
+              {!isVideoQuestion && (
+                <div className="game__question_timer_bar">
+                  <div
+                    className="game__question_timer_fill"
+                    style={{
+                      width: `${(timer / (activeQuestion.timer_sec || QUESTION_TIMER_SECONDS)) * 100}%`,
+                    }}
+                  />
                 </div>
-              </div>
-              <div className="game__question_timer_bar">
-                <div
-                  className="game__question_timer_fill"
-                  style={{
-                    width: `${(timer / (activeQuestion.timer_sec || QUESTION_TIMER_SECONDS)) * 100}%`,
-                  }}
-                />
-              </div>
+              )}
             </div>
 
             {/* Main Question Card */}
             <div
               className={`game__question_card ${
                 isInputActive ? "game__question_card--answering" : ""
-              }`}
+              } ${hasMedia ? "game__question_card--has-media" : ""}`}
             >
               <div></div>
-              <div className="game__question_text_wrapper">
-                <p className="game__question_text">{formatNbsp(activeQuestion.question)}</p>
+              <div
+                className={`game__question_text_wrapper ${
+                  hasMedia ? "game__question_text_wrapper--has-media" : ""
+                }`}
+              >
+                <p
+                  className={`game__question_text ${
+                    hasMedia ? "game__question_text--has-media" : ""
+                  }`}
+                >
+                  {formatNbsp(activeQuestion.question)}
+                </p>
+
+                {isImageQuestion && activeQuestion.media_url && (
+                  <div className="game__question_media_wrap game__question_media_wrap--image">
+                    <img
+                      src={normalizeMediaUrl(activeQuestion.media_url)}
+                      alt="Вопрос"
+                      className="game__question_image"
+                    />
+                  </div>
+                )}
+
+                {isVideoQuestion && activeQuestion.media_url && (
+                  <div className="game__question_media_wrap game__question_media_wrap--video">
+                    <video
+                      src={`${normalizeMediaUrl(activeQuestion.media_url)}#t=0.001`}
+                      className="game__question_video_preview"
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                    <div className="game__question_video_overlay">
+                      <button
+                        type="button"
+                        className="game__question_video_btn"
+                        onClick={() => setIsVideoModalOpen(true)}
+                      >
+                        СМОТРЕТЬ
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {isInputActive ? (
@@ -1150,6 +1258,38 @@ function Game() {
             </div>
 
             {renderBottomBar()}
+          </div>
+        )}
+
+        {/* Fullscreen Video Player Modal */}
+        {isVideoModalOpen && activeQuestion && activeQuestion.media_url && (
+          <div
+            className="game__video_modal_overlay"
+            onClick={handleCloseVideoModal}
+          >
+            <div
+              className="game__video_modal_content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="game__video_modal_player_wrap">
+                <video
+                  ref={modalVideoRef}
+                  src={normalizeMediaUrl(activeQuestion.media_url)}
+                  className="game__video_modal_player"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              </div>
+
+              <button
+                type="button"
+                className="game__video_modal_close_btn"
+                onClick={handleCloseVideoModal}
+              >
+                ЗАКРЫТЬ
+              </button>
+            </div>
           </div>
         )}
 

@@ -18,6 +18,11 @@ import logoTop from "../assets/images/logo-top.png";
 import prize from "../assets/images/prize.png";
 import lead3000 from "../assets/images/lead3000.png";
 import subBanner from "../assets/images/sub.png";
+import smartPrize from "../assets/images/prizes/smart.png";
+import pristavkaPrize from "../assets/images/prizes/pristavka.png";
+import watchPrize from "../assets/images/prizes/watch.png";
+import photoPrize from "../assets/images/prizes/photo.png";
+import kolonkaPrize from "../assets/images/prizes/kolonka.png";
 
 // Icons
 import mtsLogo from "../assets/icons/mts-logo.svg";
@@ -56,6 +61,11 @@ export const APP_PRELOAD_IMAGES: string[] = Array.from(
     prize,
     lead3000,
     subBanner,
+    smartPrize,
+    pristavkaPrize,
+    watchPrize,
+    photoPrize,
+    kolonkaPrize,
 
     // Icons
     mtsLogo,

@@ -6,12 +6,17 @@ import { useAppStore } from "../../store/appStore";
 import { acceptRules } from "../../api/rules";
 import { formatNbsp } from "../../utils/typography";
 
-import prize from "../../assets/images/prize.png";
 import closeIcon from "../../assets/icons/close.svg";
 import infoLogo from "../../assets/images/logo-top.png";
 import logo from "../../assets/icons/mts-logo.svg";
 import chelik from "../../assets/images/info-man.png";
 import { isMobileTelegram } from "../../utils/telegramPlatform";
+
+import kolonka from '../../assets/images/prizes/kolonka.png'
+import photo from '../../assets/images/prizes/photo.png'
+import pristavka from '../../assets/images/prizes/pristavka.png'
+import smart from '../../assets/images/prizes/smart.png'
+import watch from '../../assets/images/prizes/watch.png'
 
 type FaqItem = {
   id: number;
@@ -23,45 +28,60 @@ const faqItems: FaqItem[] = [
   {
     id: 1,
     title: "Как\u00A0принять участие в\u00A0розыгрыше?",
-    text: "Lorem ipsum dolor sit amet consectetur. Gravida nec semper faucibus aliquam lacus sem vel non sapien. Sed viverra arcu ultrices id adipiscing quisque mollis condimentum in. Non lacinia enim suspendisse id pharetra eu nibh facilisi in. Lacus diam nisl at lectus enim. Diam id urna scelerisque et enim praesent egestas sit. Et arcu massa dignissim fringilla. Elementum pellentesque id.",
+    text: "Нужно подписаться на\u00A0телеграмм-канал РИИЛ и\u00A0пройти игру, набрав от\u00A02.000\u00A0баллов и\u00A0став одним из\u00A0топ 10\u00A0игроков. Игру можно пройти два раза, а\u00A0засчитается наилучший результат.",
   },
   {
     id: 2,
     title: "Кто организатор розыгрыша",
-    text: "Lorem ipsum dolor sit amet consectetur. Gravida nec semper faucibus aliquam lacus sem vel non sapien. Sed viverra arcu ultrices id adipiscing quisque mollis condimentum in. Non lacinia enim suspendisse id pharetra eu nibh facilisi in. Lacus diam nisl at lectus enim. Diam id urna scelerisque et enim praesent egestas sit. Et arcu massa dignissim fringilla. Elementum pellentesque id.",
+    text: "Все подробности смотри в\u00A0правилах розыгрыша по\u00A0ссылке",
   },
   {
     id: 3,
     title: "Что можно выиграть?",
-    text: "Lorem ipsum dolor sit amet consectetur. Gravida nec semper faucibus aliquam lacus sem vel non sapien. Sed viverra arcu ultrices id adipiscing quisque mollis condimentum in. Non lacinia enim suspendisse id pharetra eu nibh facilisi in. Lacus diam nisl at lectus enim. Diam id urna scelerisque et enim praesent egestas sit. Et arcu massa dignissim fringilla. Elementum pellentesque id.",
+    text: "Пройди игру, набери максимум баллов и\u00A0получи шанс выиграть один из\u00A0призов: фотоаппарат моментальной печати, портативную колонку, смарт-часы, игровую консоль или\u00A0смартфон.",
   },
 ];
 
 const prizes = [
   {
     id: 1,
-    image: prize,
-    name: "Фирменный кардхолдер МТС",
-    count: "25 шт",
-    className: "cardholder",
+    image: smart,
+    name: "Смартфон",
+    count: "1 место",
+    className: "smart",
   },
   {
     id: 2,
-    image: prize,
-    name: "Фирменный кардхолдер МТС",
-    count: "25 шт",
-    className: "cardholder",
+    image: pristavka,
+    name: "Игровая консоль",
+    count: "2 место",
+    className: "pristavka",
   },
   {
     id: 3,
-    image: prize,
-    name: "Фирменный кардхолдер МТС",
-    count: "25 шт",
-    className: "cardholder",
+    image: watch,
+    name: "Смарт-часы",
+    count: "3-5 место",
+    className: "watch",
+  },
+  {
+    id: 4,
+    image: photo,
+    name: "Моментальный фотоаппарат",
+    count: "6-7 место",
+    className: "photo",
+  },
+  {
+    id: 5,
+    image: kolonka,
+    name: "Портативная колонка",
+    count: "8-10 место",
+    className: "kolonka",
   },
 ];
 
 const CHANNEL_URL = "https://t.me/eto_riil";
+const CHANNEL_URL_TARIF = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_knopka_glavnay";
 
 function Info() {
   const isMobile = isMobileTelegram();
@@ -139,6 +159,16 @@ function Info() {
     }
 
     window.open(CHANNEL_URL, "_blank", "noopener,noreferrer");
+  };
+  const handleOpenTarif = () => {
+    const tg = (window as any)?.Telegram?.WebApp;
+
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(CHANNEL_URL_TARIF);
+      return;
+    }
+
+    window.open(CHANNEL_URL_TARIF, "_blank", "noopener,noreferrer");
   };
 
   const handleStartGameClick = () => {
@@ -243,11 +273,11 @@ function Info() {
                   <img
                     src={prize.image}
                     alt=""
-                    className={`slider_item_img ${
+                    className={`slider_item_img ${prize.className || ""} ${
                       prize.className
                         ? `slider_item_img--${prize.className}`
                         : ""
-                    }`}
+                    }`.trim()}
                   />
 
                   <span className="slider_item_name">{prize.name}</span>
@@ -311,7 +341,7 @@ function Info() {
           </div>
         </section>
         <section className="info__buttons">
-          <button className="info__button red" onClick={handleOpenRiil}>
+          <button className="info__button red" onClick={handleOpenTarif}>
             Подключить тариф риил
           </button>
           <button className="info__button trans" onClick={handleOpenRiil}>
