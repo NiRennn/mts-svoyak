@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import type { FormEvent } from "react";
 import "./Game.scss";
 import { useNavigate } from "react-router-dom";
@@ -126,24 +126,24 @@ function Game() {
   const isCurrentAttemptFinished =
     Boolean(attempt?.is_finished) || answeredCount >= 75;
 
+  const threshold = qualifyThreshold || 2000;
+
   const hasFinishedQualifiedAttempt =
-    Array.isArray(attempts) &&
-    attempts.some(
-      (a) =>
-        Boolean(a.is_finished) &&
-        ((a.total_points ?? 0) >= (qualifyThreshold || 2000) ||
-          (bestPoints ?? 0) >= (qualifyThreshold || 2000)),
-    );
+    hasQualified ||
+    (Array.isArray(attempts) &&
+      attempts.some(
+        (a) =>
+          Boolean(a.is_finished) &&
+          ((a.total_points ?? 0) >= threshold ||
+            (a.total_points ?? 0) > 2000 ||
+            (bestPoints ?? 0) >= threshold),
+      ));
+
+  const isAttempt2InProgress =
+    hasFinishedQualifiedAttempt && !isCurrentAttemptFinished && answeredCount > 0;
 
   const isQualifiedAndFinished =
-    hasQualified ||
-    hasFinishedQualifiedAttempt ||
-    (isCurrentAttemptFinished &&
-      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 2000) ||
-        (bestPoints ?? 0) >= (qualifyThreshold || 2000))) ||
-    (!canPlay &&
-      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
-        (qualifyThreshold || 2000));
+    hasFinishedQualifiedAttempt && !isAttempt2InProgress;
 
   // Determine starting round based on themes and already answered question IDs
   const calculateInitialRound = (
@@ -178,7 +178,12 @@ function Game() {
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [screen, setScreen] = useState<GameScreen>(() => {
-    if (isQualifiedAndFinished || (!canPlay && isCurrentAttemptFinished)) {
+    // If user has a qualified attempt and has NOT started playing attempt 2 (answeredCount === 0),
+    // show the victory screen of game 1!
+    if (hasFinishedQualifiedAttempt && !isAttempt2InProgress) {
+      return "game-finished";
+    }
+    if (isCurrentAttemptFinished) {
       return "game-finished";
     }
     return "board";
@@ -188,8 +193,61 @@ function Game() {
   const [modifierPoints, setModifierPoints] = useState<number>(0);
   const [timer, setTimer] = useState<number>(QUESTION_TIMER_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isRestarting, setIsRestarting] = useState<boolean>(false);
   const [lastSubmitResponse, setLastSubmitResponse] =
     useState<SubmitAnswerResponse | null>(null);
+
+  // Count successful attempts (> 2000 / >= threshold and finished)
+  const successfulAttemptNos = useMemo(() => {
+    const set = new Set<number>();
+    let unnumberedCount = 0;
+    if (Array.isArray(attempts)) {
+      for (const a of attempts) {
+        if (
+          Boolean(a.is_finished) &&
+          ((a.total_points ?? 0) >= threshold || (a.total_points ?? 0) > 2000)
+        ) {
+          if (typeof a.attempt_no === "number") {
+            set.add(a.attempt_no);
+          } else {
+            unnumberedCount++;
+          }
+        }
+      }
+    }
+    const curScore = Math.max(
+      totalScore,
+      attempt?.total_points ?? 0,
+      lastSubmitResponse?.attempt_points ?? 0,
+    );
+    const isCurFinished =
+      isCurrentAttemptFinished ||
+      Boolean(lastSubmitResponse?.attempt_finished) ||
+      screen === "game-finished";
+
+    if (
+      isCurFinished &&
+      (curScore >= threshold || curScore > 2000 || lastSubmitResponse?.qualified)
+    ) {
+      if (typeof attempt?.attempt_no === "number") {
+        set.add(attempt.attempt_no);
+      } else if (set.size === 0 && unnumberedCount === 0) {
+        unnumberedCount++;
+      }
+    }
+    return { size: set.size + unnumberedCount };
+  }, [
+    attempts,
+    attempt,
+    threshold,
+    totalScore,
+    lastSubmitResponse,
+    isCurrentAttemptFinished,
+    screen,
+  ]);
+
+  const successfulCount = successfulAttemptNos.size;
+  const canRestartAfterWin = successfulCount < 2 && canPlay !== false;
 
   const handleShowAnswerResult = (isCorrect: boolean) => {
     if (isCorrect) {
@@ -717,9 +775,12 @@ function Game() {
   };
 
   const handleRestartGame = async () => {
-    if (isQualified) return;
+    if (isRestarting) return;
+    if (successfulCount >= 2 || canPlay === false) return;
+
     const userId = user?.tg_id ?? user?.user_id;
     if (userId) {
+      setIsRestarting(true);
       try {
         const raw = await fetchAndHydrateUserData(userId);
         if (raw.can_play === false) {
@@ -734,10 +795,13 @@ function Game() {
         setUserAnswer("");
         setModalResult(null);
         setModalFeedbackText("");
+        setLastSubmitResponse(null);
         setScreen("board");
         return;
       } catch (err) {
         console.error("Error restarting game:", err);
+      } finally {
+        setIsRestarting(false);
       }
     }
 
@@ -749,13 +813,16 @@ function Game() {
     setUserAnswer("");
     setModalResult(null);
     setModalFeedbackText("");
+    setLastSubmitResponse(null);
     setScreen("board");
   };
 
   const isQualified =
     (screen === "game-finished" || isQualifiedAndFinished) &&
-    (totalScore >= (qualifyThreshold || 2000) ||
-      (bestPoints ?? 0) >= (qualifyThreshold || 2000) ||
+    (totalScore >= threshold ||
+      totalScore > 2000 ||
+      (bestPoints ?? 0) >= threshold ||
+      (attempt?.total_points ?? 0) >= threshold ||
       hasFinishedQualifiedAttempt ||
       Boolean(lastSubmitResponse?.qualified));
 
@@ -766,10 +833,12 @@ function Game() {
 
   useEffect(() => {
     if (isQualified && screen === "game-finished") {
-      setCanPlay(false);
       setHasQualified(true);
+      if (successfulCount >= 2) {
+        setCanPlay(false);
+      }
     }
-  }, [isQualified, screen, setCanPlay, setHasQualified]);
+  }, [isQualified, screen, successfulCount, setCanPlay, setHasQualified]);
 
   const handleOpenChannel = () => {
     const tg = (window as any)?.Telegram?.WebApp;
@@ -1224,6 +1293,16 @@ function Game() {
                     </button>
                   </div>
 
+                  {canRestartAfterWin && (
+                    <button
+                      type="button"
+                      className="game__finished_btn_red_try"
+                      onClick={handleRestartGame}
+                      disabled={isSubmitting || isRestarting}
+                    >
+                      Начать с начала
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="game__finished_btn_trans"
@@ -1239,6 +1318,7 @@ function Game() {
                   <button
                     className="game__finished_btn_red"
                     onClick={handleRestartGame}
+                    disabled={isSubmitting || isRestarting}
                   >
                     <span className="game__finished_btn_red_text">
                       Повторить

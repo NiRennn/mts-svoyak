@@ -28,11 +28,12 @@ export type SubmitAnswerResponse = {
   qualified: boolean;
   qualify_threshold: number;
   best_points?: number;
+  can_play?: boolean;
   error?: string;
 };
 
 export const submitAnswer = async (
-  params: SubmitAnswerRequest
+  params: SubmitAnswerRequest,
 ): Promise<SubmitAnswerResponse> => {
   const response = await fetch(`${API_ORIGIN}/api/submit_answer/`, {
     method: "POST",
@@ -47,7 +48,7 @@ export const submitAnswer = async (
 
   if (!response.ok) {
     throw new Error(
-      data.error || `POST /api/submit_answer/ → HTTP ${response.status}`
+      data.error || `POST /api/submit_answer/ → HTTP ${response.status}`,
     );
   }
 
@@ -68,15 +69,32 @@ export const submitAnswer = async (
     });
   }
 
+  const threshold = data.qualify_threshold || state.qualify_threshold || 2000;
   const isFinished = Boolean(data.attempt_finished);
-  if (
-    isFinished &&
-    (data.qualified ||
-      ((data.best_points ?? 0) >= (data.qualify_threshold || 2000)) ||
-      data.attempt_points >= (data.qualify_threshold || 2000))
-  ) {
-    state.setCanPlay(false);
+  const isQualified =
+    data.qualified ||
+    data.attempt_points >= threshold ||
+    data.attempt_points > 2000 ||
+    (data.best_points ?? 0) >= threshold;
+
+  if (isFinished && isQualified) {
     state.setHasQualified(true);
+
+    const successfulPastAttempts = (state.attempts || []).filter(
+      (a) =>
+        Boolean(a.is_finished) &&
+        ((a.total_points ?? 0) >= threshold || (a.total_points ?? 0) > 2000) &&
+        a.attempt_no !== state.attempt?.attempt_no,
+    );
+    const totalSuccessful = successfulPastAttempts.length + 1;
+
+    if (totalSuccessful >= 2 || data.can_play === false) {
+      state.setCanPlay(false);
+    } else if (data.can_play !== undefined) {
+      state.setCanPlay(data.can_play);
+    }
+  } else if (data.can_play !== undefined) {
+    state.setCanPlay(data.can_play);
   }
 
   return data;

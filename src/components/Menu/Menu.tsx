@@ -23,11 +23,11 @@ function Menu() {
   const isMobile = isMobileTelegram();
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
-  const hasQualified = useAppStore((state) => state.has_qualified);
+  // const hasQualified = useAppStore((state) => state.has_qualified);
   const canPlay = useAppStore((state) => state.can_play);
   const attempt = useAppStore((state) => state.attempt);
   const attempts = useAppStore((state) => state.attempts);
-  const bestPoints = useAppStore((state) => state.best_points);
+  // const bestPoints = useAppStore((state) => state.best_points);
   const qualifyThreshold = useAppStore((state) => state.qualify_threshold);
   const storeAnsweredIds = useAppStore((state) => state.answered_question_ids);
 
@@ -36,30 +36,48 @@ function Menu() {
   const isCurrentAttemptFinished =
     Boolean(attempt?.is_finished) || answeredCount >= 75;
 
-  const hasFinishedQualifiedAttempt =
-    Array.isArray(attempts) &&
-    attempts.some(
-      (a) =>
+  const threshold = qualifyThreshold || 2000;
+  const successfulAttemptNos = new Set<number>();
+  let unnumberedCount = 0;
+  if (Array.isArray(attempts)) {
+    for (const a of attempts) {
+      if (
         Boolean(a.is_finished) &&
-        ((a.total_points ?? 0) >= (qualifyThreshold || 2000) ||
-          (bestPoints ?? 0) >= (qualifyThreshold || 2000)),
-    );
+        ((a.total_points ?? 0) >= threshold || (a.total_points ?? 0) > 2000)
+      ) {
+        if (typeof a.attempt_no === "number") {
+          successfulAttemptNos.add(a.attempt_no);
+        } else {
+          unnumberedCount++;
+        }
+      }
+    }
+  }
+  if (
+    isCurrentAttemptFinished &&
+    ((attempt?.total_points ?? 0) >= threshold || (attempt?.total_points ?? 0) > 2000)
+  ) {
+    if (typeof attempt?.attempt_no === "number") {
+      successfulAttemptNos.add(attempt.attempt_no);
+    } else if (successfulAttemptNos.size === 0 && unnumberedCount === 0) {
+      unnumberedCount++;
+    }
+  }
+  const successfulCount = successfulAttemptNos.size + unnumberedCount;
 
-  const isQualifiedAndFinished =
-    hasQualified ||
-    hasFinishedQualifiedAttempt ||
-    (isCurrentAttemptFinished &&
-      ((attempt?.total_points ?? 0) >= (qualifyThreshold || 2000) ||
-        (bestPoints ?? 0) >= (qualifyThreshold || 2000))) ||
-    (!canPlay &&
-      Math.max(bestPoints ?? 0, attempt?.total_points ?? 0) >=
-        (qualifyThreshold || 2000));
+  const isAttempt2InProgress =
+    successfulCount === 1 && !isCurrentAttemptFinished && answeredCount > 0;
+
+  const isExhaustedOrFullyQualified =
+    successfulCount >= 2 ||
+    (successfulCount === 1 && !isAttempt2InProgress) ||
+    (!canPlay && isCurrentAttemptFinished);
 
   useEffect(() => {
-    if (isQualifiedAndFinished) {
+    if (isExhaustedOrFullyQualified) {
       navigate(appRoutes.GAME, { replace: true });
     }
-  }, [isQualifiedAndFinished, navigate]);
+  }, [isExhaustedOrFullyQualified, navigate]);
 
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;

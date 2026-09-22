@@ -225,32 +225,44 @@ export const useAppStore = create<AppState>((set) => ({
       Boolean(data.attempt?.is_finished) || answeredCount >= 75;
     const serverCanPlay = data.can_play ?? true;
 
-    // Check if the user has already completed a winning attempt in the attempts history
-    const hasFinishedQualifiedAttemptInList =
-      Array.isArray(data.attempts) &&
-      data.attempts.some(
-        (a) =>
+    // Count how many attempts are finished and qualified (>= qualifyThreshold or > 2000)
+    const successfulAttemptNos = new Set<number>();
+    let unnumberedCount = 0;
+    if (Array.isArray(data.attempts)) {
+      for (const a of data.attempts) {
+        if (
           Boolean(a.is_finished) &&
-          ((a.total_points ?? 0) >= qualifyThreshold || bestPoints >= qualifyThreshold),
-      );
+          ((a.total_points ?? 0) >= qualifyThreshold || (a.total_points ?? 0) > 2000)
+        ) {
+          if (typeof a.attempt_no === "number") {
+            successfulAttemptNos.add(a.attempt_no);
+          } else {
+            unnumberedCount++;
+          }
+        }
+      }
+    }
 
-    const isCurrentAttemptQualified =
+    if (
       isCurrentAttemptFinished &&
-      (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold);
+      (attemptPoints >= qualifyThreshold || attemptPoints > 2000)
+    ) {
+      if (typeof data.attempt?.attempt_no === "number") {
+        successfulAttemptNos.add(data.attempt.attempt_no);
+      } else if (successfulAttemptNos.size === 0 && unnumberedCount === 0) {
+        unnumberedCount++;
+      }
+    }
 
-    const isExhaustedQualified =
-      !serverCanPlay &&
-      Math.max(bestPoints, attemptPoints) >= qualifyThreshold;
-
-    const isQualifiedUser =
-      hasFinishedQualifiedAttemptInList ||
-      isCurrentAttemptQualified ||
-      isExhaustedQualified;
+    const successfulAttemptsCount = successfulAttemptNos.size + unnumberedCount;
+    const isFullyQualified = successfulAttemptsCount >= 2;
+    const hasQualified =
+      successfulAttemptsCount > 0 || bestPoints >= qualifyThreshold;
 
     set({
       user,
-      can_play: isQualifiedUser ? false : serverCanPlay,
-      has_qualified: isQualifiedUser,
+      can_play: isFullyQualified ? false : serverCanPlay,
+      has_qualified: hasQualified,
       attempts_played: data.attempts_played ?? 0,
       max_attempts: data.max_attempts ?? 2,
       best_points: data.best_points ?? null,

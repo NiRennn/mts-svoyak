@@ -38,7 +38,7 @@ function Loading() {
     }
 
     const qualifyThreshold = userData.qualify_threshold ?? 2000;
-    const bestPoints = userData.best_points ?? 0;
+    // const bestPoints = userData.best_points ?? 0;
     const attemptPoints = userData.attempt?.total_points ?? 0;
     const answeredCount =
       userData.answered_question_ids?.length ??
@@ -46,30 +46,50 @@ function Loading() {
       0;
     const isCurrentAttemptFinished =
       Boolean(userData.attempt?.is_finished) || answeredCount >= 75;
-    const serverCanPlay = userData.can_play ?? true;
 
-    const hasFinishedQualifiedAttemptInList =
-      Array.isArray(userData.attempts) &&
-      userData.attempts.some(
-        (a) =>
+    // Count how many attempts are finished and qualified (>= qualifyThreshold or > 2000)
+    const successfulAttemptNos = new Set<number>();
+    let unnumberedCount = 0;
+    if (Array.isArray(userData.attempts)) {
+      for (const a of userData.attempts) {
+        if (
           Boolean(a.is_finished) &&
-          ((a.total_points ?? 0) >= qualifyThreshold || bestPoints >= qualifyThreshold),
-      );
+          ((a.total_points ?? 0) >= qualifyThreshold || (a.total_points ?? 0) > 2000)
+        ) {
+          if (typeof a.attempt_no === "number") {
+            successfulAttemptNos.add(a.attempt_no);
+          } else {
+            unnumberedCount++;
+          }
+        }
+      }
+    }
 
-    const isCurrentAttemptQualified =
+    if (
       isCurrentAttemptFinished &&
-      (attemptPoints >= qualifyThreshold || bestPoints >= qualifyThreshold);
+      (attemptPoints >= qualifyThreshold || attemptPoints > 2000)
+    ) {
+      if (typeof userData.attempt?.attempt_no === "number") {
+        successfulAttemptNos.add(userData.attempt.attempt_no);
+      } else if (successfulAttemptNos.size === 0 && unnumberedCount === 0) {
+        unnumberedCount++;
+      }
+    }
 
-    const isExhaustedQualified =
-      !serverCanPlay &&
-      Math.max(bestPoints, attemptPoints) >= qualifyThreshold;
+    const successfulCount = successfulAttemptNos.size + unnumberedCount;
 
-    const isQualifiedAndFinished =
-      hasFinishedQualifiedAttemptInList ||
-      isCurrentAttemptQualified ||
-      isExhaustedQualified;
+    // User is in the middle of playing attempt 2 if they won 1 game and already answered questions in attempt 2
+    const isAttempt2InProgress =
+      successfulCount === 1 && !isCurrentAttemptFinished && answeredCount > 0;
 
-    if (isQualifiedAndFinished) {
+    // Redirect to GAME (final screen) ONLY IF:
+    // 1) User has completed 2 successful games (without button)
+    // 2) User has completed 1 successful game AND has not started playing the second game (with button)
+    const shouldGoToFinishedScreen =
+      successfulCount >= 2 ||
+      (successfulCount === 1 && !isAttempt2InProgress);
+
+    if (shouldGoToFinishedScreen) {
       return appRoutes.GAME;
     }
 
