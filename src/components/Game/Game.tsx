@@ -878,7 +878,9 @@ function Game() {
 
   return (
     <div
-      className={`game ${isMobile ? "game--mobile" : "game--desktop"}`}
+      className={`game ${isMobile ? "game--mobile" : "game--desktop"}${
+        modalResult ? " game--modal-open" : ""
+      }`}
       data-platform={isMobile ? "mobile" : "desktop"}
     >
       {/* Hidden container to keep GPU textures of host illustrations permanently loaded and hot */}
@@ -1139,7 +1141,7 @@ function Game() {
               </div>
             </div>
 
-            <div className="game__modifier_body">
+            <div className="game__modifier_body"> 
               <div className="game__modifier_host_wrap">
                 <img
                   src={modHost}

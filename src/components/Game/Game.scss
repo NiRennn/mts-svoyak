@@ -12,21 +12,16 @@
   -webkit-overflow-scrolling: touch;
   animation: pageFadeIn 0.45s ease-out;
 
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    width: 4px;
-    display: block;
+    display: none;
+    width: 0;
   }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
+  &.game--modal-open {
+    overflow: hidden !important;
   }
 }
 
@@ -1148,6 +1143,7 @@ body.is-desktop .game__finished_logo {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  overflow: hidden;
   // padding: 16px;
   padding: calc(
       var(--tg-content-safe-area-inset-top, 0px) +
@@ -1403,10 +1399,11 @@ body.is-desktop .game__finished_logo {
 }
 
 .game__modifier_host_img {
-  height: 100%;
+  // height: 100%;
+// height: auto;
   // max-height: clamp(140px, 35vh, 320px);
   width: auto;
-  max-width: 90%;
+  max-width: 70%;
   object-fit: contain;
   object-position: bottom center;
 }
@@ -1528,62 +1525,69 @@ body.is-desktop .game__finished_logo {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  // padding-top: 140px;
-  // padding-bottom: 20px;
+  padding: 0 16px;
+  padding-bottom: calc(
+    var(--tg-content-safe-area-inset-bottom, 0px) +
+      var(--tg-safe-area-inset-bottom, 0px) + 24px
+  );
+  box-sizing: border-box;
+  overflow: hidden;
   z-index: 32;
   animation: modalFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  gap: 20px;
 }
 
 .wrapper {
-  height: 156px;
+  display: none;
 }
 
 .game__modal_modifier_center {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 .game__modal_modifier_icon {
-  width: 112px;
-  height: 112px;
-  margin-bottom: 24px;
+  width: 90px;
+  height: 90px;
+  margin-bottom: 20px;
   object-fit: contain;
 }
 
 .game__modal_modifier_circle {
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background-color: #ff0032;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 
 .game__modal_modifier_title {
   font-family: "MTSUltraExtendedBold";
-  font-size: 26px;
+  font-size: 24px;
   line-height: 28px;
   color: #ffffff;
   text-transform: uppercase;
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
 }
 
 .game__modal_modifier_desc {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .game__modal_modifier_desc_p {
   font-family: "MTSSansRegular";
-  font-size: 16px;
+  font-size: 15px;
   line-height: 18px;
   color: rgba(255, 255, 255, 0.8);
   margin: 0;
@@ -1595,16 +1599,14 @@ body.is-desktop .game__finished_logo {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 0 16px;
-  // position: absolute;
-  // bottom: 63px;
-  padding-bottom: 50px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .game__modal_modifier_btn {
   width: 100%;
   max-width: 301px;
-  height: 106px;
+  height: 69px;
   background-color: #ff0032;
   border: 1px solid #ffffff;
   border-radius: 70px;
@@ -1626,7 +1628,7 @@ body.is-desktop .game__finished_logo {
 .game__modal_modifier_btn_text {
   font-family: "MTSUltraExtendedBold";
   font-size: 16px;
-  line-height: 55.08px;
+  line-height: 22px;
   color: #ffffff;
   text-transform: uppercase;
 }
@@ -1747,9 +1749,15 @@ body.is-desktop .game__finished_logo {
   }
 
   .game__modal_modifier_icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 16px;
+    width: 76px;
+    height: 76px;
+    margin-bottom: 12px;
+  }
+
+  .game__modal_modifier_circle {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 12px;
   }
 
   .game__modal_modifier_title {
@@ -1761,6 +1769,10 @@ body.is-desktop .game__finished_logo {
   .game__modal_modifier_desc_p {
     font-size: 14px;
     line-height: 16px;
+  }
+
+  .game__modal_modifier_btn {
+    height: 60px;
   }
 
   .game__question_card {
