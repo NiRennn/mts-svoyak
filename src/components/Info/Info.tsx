@@ -339,12 +339,30 @@ function Info() {
 
                   <div className="info__faq_body">
                     <p className="info__faq_text">
-                      {item.text.split("\n").map((line, index) => (
-                        <span key={index}>
-                          {formatNbsp(line)}
-                          <br />
-                        </span>
-                      ))}
+                      {item.id === 2 ? (
+                        <>
+                          Все подробности смотри в&nbsp;правилах розыгрыша по&nbsp;
+                          <a
+                            href={RULES_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="info__faq_link"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleOpenRules();
+                            }}
+                          >
+                            ссылке
+                          </a>
+                        </>
+                      ) : (
+                        item.text.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {formatNbsp(line)}
+                            <br />
+                          </span>
+                        ))
+                      )}
                     </p>
                   </div>
                 </div>
