@@ -17,6 +17,7 @@ import { isMobileTelegram } from "../../utils/telegramPlatform";
 // type MenuContentState = "game" | "all-found" | "finished";
 
 const CHANNEL_URL_MENU = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_menu";
+const RULES_URL = "https://drive.google.com/file/d/1NBipMZz2ESikcH0nBw8h96AsxBldFCKz/view";
 // const CHANNEL_URL_FINAL = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_final_igra";
 
 function Menu() { 
@@ -259,11 +260,18 @@ function Menu() {
               <span className="menu_rules_modal__checkbox_label">
                 Я&nbsp;ознакомился и&nbsp;соглашаюсь с&nbsp;
                 <a
-                  href="https://ya.ru/"
+                  href={RULES_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="menu_rules_modal__link"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const tg = (window as any)?.Telegram?.WebApp;
+                    if (tg?.openLink) {
+                      e.preventDefault();
+                      tg.openLink(RULES_URL);
+                    }
+                  }}
                 >
                   Правилами конкурса
                 </a>

@@ -82,6 +82,7 @@ const prizes = [
 
 const CHANNEL_URL = "https://t.me/eto_riil";
 const CHANNEL_URL_TARIF = "https://mts.ru/riil?utm_source=mrk_sp&utm_medium=banner&utm_campaign=msc_mts_riil_q3_26&utm_term=app_knopka_glavnay";
+const RULES_URL = "https://drive.google.com/file/d/1NBipMZz2ESikcH0nBw8h96AsxBldFCKz/view";
 
 function Info() {
   const isMobile = isMobileTelegram();
@@ -169,6 +170,17 @@ function Info() {
     }
 
     window.open(CHANNEL_URL_TARIF, "_blank", "noopener,noreferrer");
+  };
+
+  const handleOpenRules = () => {
+    const tg = (window as any)?.Telegram?.WebApp;
+
+    if (tg?.openLink) {
+      tg.openLink(RULES_URL);
+      return;
+    }
+
+    window.open(RULES_URL, "_blank", "noopener,noreferrer");
   };
 
   const handleStartGameClick = () => {
@@ -349,7 +361,7 @@ function Info() {
           </button>
           <button
             className="info__button trans"
-            onClick={() => setIsRulesModalOpen(true)}
+            onClick={handleOpenRules}
           >
             Правила розыгрыша
           </button>
@@ -400,11 +412,18 @@ function Info() {
               <span className="menu_rules_modal__checkbox_label">
                 Я&nbsp;ознакомился и&nbsp;соглашаюсь с&nbsp;
                 <a
-                  href="https://ya.ru/"
+                  href={RULES_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="menu_rules_modal__link"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const tg = (window as any)?.Telegram?.WebApp;
+                    if (tg?.openLink) {
+                      e.preventDefault();
+                      tg.openLink(RULES_URL);
+                    }
+                  }}
                 >
                   Правилами конкурса
                 </a>
