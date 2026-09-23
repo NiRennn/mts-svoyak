@@ -264,12 +264,17 @@ function Game() {
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
 
   const handleCloseVideoModal = () => {
     if (modalVideoRef.current) {
       modalVideoRef.current.pause();
     }
     setIsVideoModalOpen(false);
+  };
+
+  const handleCloseImageModal = () => {
+    setIsImageModalOpen(false);
   };
 
   const activeMediaType = getMediaType(activeQuestion);
@@ -282,7 +287,7 @@ function Game() {
     preloadImageSrcs([valid, invalid, timeHost, modHost]);
   }, []);
 
-  // Telegram BackButton support for question selection board and video modal
+  // Telegram BackButton support for question selection board and media modals
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
     const backButton = tg?.BackButton;
@@ -294,10 +299,14 @@ function Game() {
         handleCloseVideoModal();
         return;
       }
+      if (isImageModalOpen) {
+        handleCloseImageModal();
+        return;
+      }
       navigate(appRoutes.MENU, { replace: true });
     };
 
-    if (isVideoModalOpen) {
+    if (isVideoModalOpen || isImageModalOpen) {
       backButton.show();
       backButton.onClick(handleTelegramBack);
     } else if (screen === "board") {
@@ -312,7 +321,7 @@ function Game() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [screen, isVideoModalOpen, navigate]);
+  }, [screen, isVideoModalOpen, isImageModalOpen, navigate]);
 
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
@@ -443,6 +452,7 @@ function Game() {
     setIsInputActive(false);
     setUserAnswer("");
     handleCloseVideoModal();
+    handleCloseImageModal();
     setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
     // setTimer(QUESTION_TIMER_SECONDS);
     setModalResult(null);
@@ -878,7 +888,9 @@ function Game() {
 
   return (
     <div
-      className={`game ${isMobile ? "game--mobile" : "game--desktop"}`}
+      className={`game ${isMobile ? "game--mobile" : "game--desktop"} ${
+        modalResult ? "game--modal-open" : ""
+      }`}
       data-platform={isMobile ? "mobile" : "desktop"}
     >
       {/* Hidden container to keep GPU textures of host illustrations permanently loaded and hot */}
@@ -1011,7 +1023,10 @@ function Game() {
                 </p>
 
                 {isImageQuestion && activeQuestion.media_url && (
-                  <div className="game__question_media_wrap game__question_media_wrap--image">
+                  <div
+                    className="game__question_media_wrap game__question_media_wrap--image"
+                    onClick={() => setIsImageModalOpen(true)}
+                  >
                     <img
                       src={normalizeMediaUrl(activeQuestion.media_url)}
                       alt="Вопрос"
@@ -1365,6 +1380,35 @@ function Game() {
                 type="button"
                 className="game__video_modal_close_btn"
                 onClick={handleCloseVideoModal}
+              >
+                ЗАКРЫТЬ
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Fullscreen Image Modal */}
+        {isImageModalOpen && activeQuestion && activeQuestion.media_url && (
+          <div
+            className="game__video_modal_overlay"
+            onClick={handleCloseImageModal}
+          >
+            <div
+              className="game__video_modal_content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="game__image_modal_wrap">
+                <img
+                  src={normalizeMediaUrl(activeQuestion.media_url)}
+                  alt="Вопрос"
+                  className="game__image_modal_img"
+                />
+              </div>
+
+              <button
+                type="button"
+                className="game__video_modal_close_btn"
+                onClick={handleCloseImageModal}
               >
                 ЗАКРЫТЬ
               </button>

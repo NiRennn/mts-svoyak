@@ -19,6 +19,10 @@
     display: none;
     width: 0;
   }
+
+  &.game--modal-open {
+    overflow: hidden !important;
+  }
 }
 
 .game__content {
@@ -637,6 +641,12 @@ body.is-desktop .game__board_wrap_logo {
 
   &--image {
     background: #fcebeb;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+
+    &:active {
+      transform: scale(0.98);
+    }
 
     .game__question_image {
       width: 100%;
@@ -1129,17 +1139,27 @@ body.is-desktop .game__finished_logo {
 
 /* ==================== MODAL RESULTS ==================== */
 .game__modal_overlay {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  height: 100dvh;
   background: #0000001f;
   -webkit-backdrop-filter: blur(44.2px);
   backdrop-filter: blur(44.2px);
-  z-index: 30;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  // padding: 16px;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   padding: calc(
       var(--tg-content-safe-area-inset-top, 0px) +
         var(--tg-safe-area-inset-top, 0px) + 7px
@@ -1151,11 +1171,12 @@ body.is-desktop .game__finished_logo {
 .game__modal_host_wrap {
   width: 100%;
   height: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  // align-items: center;
   z-index: 31;
+  overflow: hidden;
 }
 
 .game__modal_host_img {
@@ -1168,11 +1189,19 @@ body.is-desktop .game__finished_logo {
 }
 
 .game__modal_badge_wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
   text-align: start;
+  z-index: 32;
+  pointer-events: none;
 }
 
 .game__modal_title {
@@ -1182,6 +1211,7 @@ body.is-desktop .game__finished_logo {
   color: #ffffff;
   text-transform: uppercase;
   margin: 0 0 10px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 .game__modal_pill_badge {
@@ -1247,15 +1277,16 @@ body.is-desktop .game__finished_logo {
   font-family: "MTSWideMedium";
   font-size: 16px;
   line-height: 18px;
-  color: #ffffff99;
+  color: #ffffff;
   margin: 0;
   max-width: 290px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 .game__modal_btn_wrap {
   width: 100%;
   padding: 0 16px;
-  z-index: 31;
+  z-index: 35;
   position: absolute;
   bottom: calc(
     var(--tg-content-safe-area-inset-bottom, 0px) +
@@ -1391,6 +1422,7 @@ body.is-desktop .game__finished_logo {
   margin-bottom: -60px;
   z-index: 1;
   pointer-events: none;
+  // margin-top: -50px;
 }
 
 .game__modifier_host_img {
@@ -1520,22 +1552,33 @@ body.is-desktop .game__finished_logo {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  // padding-top: 140px;
-  // padding-bottom: 20px;
+  padding: calc(
+      var(--tg-content-safe-area-inset-top, 0px) +
+        var(--tg-safe-area-inset-top, 0px) + 20px
+    )
+    16px
+    calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 30px
+    );
+  box-sizing: border-box;
   z-index: 32;
-  animation: modalFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  gap: 20px;
+  overflow: hidden;
 }
 
 .wrapper {
-  height: 156px;
+  display: none;
 }
 
 .game__modal_modifier_center {
+  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
+  min-height: 0;
 }
 
 .game__modal_modifier_icon {
@@ -1588,9 +1631,7 @@ body.is-desktop .game__finished_logo {
   justify-content: center;
   width: 100%;
   padding: 0 16px;
-  // position: absolute;
-  // bottom: 63px;
-  padding-bottom: 50px;
+  flex-shrink: 0;
 }
 
 .game__modal_modifier_btn {
@@ -1744,6 +1785,17 @@ body.is-desktop .game__finished_logo {
     margin-bottom: 16px;
   }
 
+  .game__modal_modifier_circle {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 14px;
+
+    svg {
+      width: 38px;
+      height: 38px;
+    }
+  }
+
   .game__modal_modifier_title {
     font-size: 22px;
     line-height: 24px;
@@ -1814,6 +1866,81 @@ body.is-desktop .game__finished_logo {
     line-height: 18px;
     border-radius: 40px;
   }
+
+  .game__modal_title {
+    font-size: 26px;
+    line-height: 26px;
+    margin-bottom: 6px;
+  }
+
+  .game__modal_desc {
+    font-size: 14px;
+    line-height: 16px;
+    max-width: 270px;
+  }
+
+  .game__modal_pill_badge {
+    height: 48px;
+    margin-top: 14px;
+  }
+
+  .game__modal_pill_badge_text {
+    font-size: 17px;
+  }
+
+  .game__modal_btn_wrap {
+    bottom: calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 24px
+    );
+  }
+
+  .game__modal_btn {
+    max-height: 60px;
+  }
+
+  .game__modal_btn_text {
+    line-height: 60px;
+  }
+}
+
+@media (max-height: 580px) {
+  .game__modal_title {
+    font-size: 22px;
+    line-height: 22px;
+    margin-bottom: 4px;
+  }
+
+  .game__modal_desc {
+    font-size: 12px;
+    line-height: 14px;
+    max-width: 250px;
+  }
+
+  .game__modal_pill_badge {
+    height: 40px;
+    margin-top: 10px;
+  }
+
+  .game__modal_pill_badge_text {
+    font-size: 15px;
+  }
+
+  .game__modal_btn_wrap {
+    bottom: calc(
+      var(--tg-content-safe-area-inset-bottom, 0px) +
+        var(--tg-safe-area-inset-bottom, 0px) + 12px
+    );
+  }
+
+  .game__modal_btn {
+    max-height: 52px;
+  }
+
+  .game__modal_btn_text {
+    line-height: 52px;
+    font-size: 14px;
+  }
 }
 
 /* ==================== VIDEO PLAYER MODAL ==================== */
@@ -1839,7 +1966,8 @@ body.is-desktop .game__finished_logo {
   align-items: center;
 }
 
-.game__video_modal_player_wrap {
+.game__video_modal_player_wrap,
+.game__image_modal_wrap {
   width: 100%;
   border-radius: 32px;
   overflow: hidden;
@@ -1850,9 +1978,11 @@ body.is-desktop .game__finished_logo {
   justify-content: center;
 }
 
-.game__video_modal_player {
+.game__video_modal_player,
+.game__image_modal_img {
   width: 100%;
   max-height: 60vh;
+  object-fit: contain;
   display: block;
   border-radius: 32px;
   outline: none;
