@@ -878,9 +878,7 @@ function Game() {
 
   return (
     <div
-      className={`game ${isMobile ? "game--mobile" : "game--desktop"}${
-        modalResult ? " game--modal-open" : ""
-      }`}
+      className={`game ${isMobile ? "game--mobile" : "game--desktop"}`}
       data-platform={isMobile ? "mobile" : "desktop"}
     >
       {/* Hidden container to keep GPU textures of host illustrations permanently loaded and hot */}
