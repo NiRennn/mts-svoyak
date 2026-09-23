@@ -1174,9 +1174,29 @@ body.is-desktop .game__finished_logo {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   z-index: 31;
   overflow: hidden;
+}
+
+.game__modal_badge_wrap {
+  position: relative;
+  z-index: 32;
+  margin-top: auto;
+  margin-bottom: -80px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+  text-align: start;
+  flex-shrink: 0;
+  pointer-events: none;
+
+  &--timeout {
+    margin-bottom: -20px;
+  }
 }
 
 .game__modal_host_img {
@@ -1186,22 +1206,7 @@ body.is-desktop .game__finished_logo {
   display: block;
   z-index: 31;
   pointer-events: none;
-}
-
-.game__modal_badge_wrap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: 20px;
-  padding-right: 20px;
-  box-sizing: border-box;
-  text-align: start;
-  z-index: 32;
-  pointer-events: none;
+  flex-shrink: 0;
 }
 
 .game__modal_title {
@@ -1888,6 +1893,14 @@ body.is-desktop .game__finished_logo {
     font-size: 17px;
   }
 
+  .game__modal_badge_wrap {
+    margin-bottom: -55px;
+
+    &--timeout {
+      margin-bottom: -15px;
+    }
+  }
+
   .game__modal_btn_wrap {
     bottom: calc(
       var(--tg-content-safe-area-inset-bottom, 0px) +
@@ -1924,6 +1937,14 @@ body.is-desktop .game__finished_logo {
 
   .game__modal_pill_badge_text {
     font-size: 15px;
+  }
+
+  .game__modal_badge_wrap {
+    margin-bottom: -35px;
+
+    &--timeout {
+      margin-bottom: -10px;
+    }
   }
 
   .game__modal_btn_wrap {

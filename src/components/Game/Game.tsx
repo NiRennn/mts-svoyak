@@ -1504,7 +1504,7 @@ function Game() {
             {modalResult === "timeout" && (
               <>
                 <div className="game__modal_host_wrap">
-                  <div className="game__modal_badge_wrap">
+                  <div className="game__modal_badge_wrap game__modal_badge_wrap--timeout">
                     <h2 className="game__modal_title">Время кончилось</h2>
                     <p className="game__modal_desc">
                       Но&nbsp;похоже тебе нравится куртка ведущего, так что очки не&nbsp;списываем
