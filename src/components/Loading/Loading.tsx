@@ -21,7 +21,7 @@ import {
   isMobileTelegram,
 } from "../../utils/telegramPlatform";
 
-const MIN_LOADING_DELAY = 3000;
+const MIN_LOADING_DELAY = 30000;
 
 const delay = (ms: number) =>
   new Promise((resolve) => {
