@@ -19,11 +19,11 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background-image: url("../../assets/images/loader-kov1.png");
+  background-image: url("../../assets/images/loader-kov2.png");
   background-repeat: no-repeat;
-  background-position: calc(50% + 20px) top;
-  // background-size: cover;
-  background-size: 110%;
+  background-position: center top;
+  background-size: cover;
+  background-size: 100%;
   
   padding: calc(
       var(--tg-content-safe-area-inset-top, 0px) +

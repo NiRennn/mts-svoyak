@@ -18,7 +18,7 @@ import {
 } from "../../api/telegramAuth";
 import {
   initTelegramPlatformAndSafeArea,
-  isMobileTelegram,
+  isMobileTelegram, 
 } from "../../utils/telegramPlatform";
 
 const MIN_LOADING_DELAY = 3000;
