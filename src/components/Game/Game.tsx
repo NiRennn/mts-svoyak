@@ -405,8 +405,12 @@ function Game() {
         )
       : (round - 1) * TOTAL_QUESTIONS_PER_ROUND + currentRoundAnsweredCount;
 
-  // Focus input when answering mode is active
+  // Focus input when answering mode is active, or blur when modal is shown
   useEffect(() => {
+    if (modalResult) {
+      inputRef.current?.blur();
+      return;
+    }
     if (screen === "question" && isInputActive && !modalResult) {
       const t = setTimeout(() => {
         inputRef.current?.focus();
@@ -505,7 +509,8 @@ function Game() {
   };
 
   const handlePass = async () => {
-    if (!activeQuestion || isSubmitting) return;
+    if (!activeQuestion || isSubmitting || Boolean(modalResult)) return;
+    inputRef.current?.blur();
     handleCloseVideoModal();
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -562,8 +567,9 @@ function Game() {
 
   const handleSubmitAnswer = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!activeQuestion || !userAnswer.trim() || isSubmitting) return;
+    if (!activeQuestion || !userAnswer.trim() || isSubmitting || Boolean(modalResult)) return;
 
+    inputRef.current?.blur();
     handleCloseVideoModal();
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -1060,7 +1066,11 @@ function Game() {
               {isInputActive ? (
                 <form
                   className="game__question_form"
-                  onSubmit={handleSubmitAnswer}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (isSubmitting || Boolean(modalResult)) return;
+                    handleSubmitAnswer(e);
+                  }}
                 >
                   <div className="game__question_input_wrap">
                     <input
@@ -1070,9 +1080,15 @@ function Game() {
                       placeholder="Введите ответ..."
                       value={userAnswer}
                       maxLength={50}
+                      disabled={isSubmitting || Boolean(modalResult)}
                       onChange={(e) => {
                         if (e.target.value.length <= 50) {
                           setUserAnswer(e.target.value);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && (isSubmitting || Boolean(modalResult))) {
+                          e.preventDefault();
                         }
                       }}
                     />
@@ -1081,7 +1097,7 @@ function Game() {
                   <button
                     type="submit"
                     className="game__question_submit_btn"
-                    disabled={!userAnswer.trim() || isSubmitting}
+                    disabled={!userAnswer.trim() || isSubmitting || Boolean(modalResult)}
                   >
                     <svg
                       width="100%"
@@ -1114,7 +1130,7 @@ function Game() {
                     type="button"
                     className="game__btn_pass"
                     onClick={handlePass}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || Boolean(modalResult)}
                   >
                     <span className="game__btn_pass_title">Пасануть</span>
                     <span className="game__btn_pass_sub">Баллы не&nbsp;спишем</span>
