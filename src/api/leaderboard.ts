@@ -19,7 +19,7 @@ export type LeaderboardResponse = {
 
 export const fetchLeaderboard = async (
   userId: number | string,
-  top: number = 100
+  top: number = 50
 ): Promise<LeaderboardResponse> => {
   const url = new URL(`${API_ORIGIN}/api/leaderboard/`);
   url.searchParams.set("user_id", String(userId));
