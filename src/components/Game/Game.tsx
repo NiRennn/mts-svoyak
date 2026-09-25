@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { FormEvent } from "react";
 import "./Game.scss";
+import { AudioPlayer } from "../AudioPlayer/AudioPlayer";
 import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
 import {
@@ -93,14 +94,18 @@ const normalizeMediaUrl = (url?: string): string => {
   return url;
 };
 
-const getMediaType = (q?: Question | null): "text" | "image" | "video" => {
+const getMediaType = (
+  q?: Question | null,
+): "text" | "image" | "video" | "audio" => {
   if (!q) return "text";
   if (q.media_type === "video") return "video";
+  if (q.media_type === "audio") return "audio";
   if (q.media_type === "image") return "image";
   if (q.media_type === "text") return "text";
   if (q.media_url) {
     const url = q.media_url.toLowerCase();
-    if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/)) return "video";
+    if (url.match(/\.(mp4|webm|mov)(\?.*)?$/)) return "video";
+    if (url.match(/\.(mp3|wav|ogg|m4a|aac)(\?.*)?$/)) return "audio";
     if (url.match(/\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/)) return "image";
   }
   return "text";
@@ -279,8 +284,10 @@ function Game() {
 
   const activeMediaType = getMediaType(activeQuestion);
   const isVideoQuestion = activeMediaType === "video";
+  const isAudioQuestion = activeMediaType === "audio";
   const isImageQuestion = activeMediaType === "image";
-  const hasMedia = isVideoQuestion || isImageQuestion;
+  const isMediaWithoutTimer = isVideoQuestion || isAudioQuestion;
+  const hasMedia = isVideoQuestion || isImageQuestion || isAudioQuestion;
 
   // Preload and decode critical modal host images immediately on Game mount
   useEffect(() => {
@@ -426,7 +433,7 @@ function Game() {
       !modalResult &&
       !isSubmitting
     ) {
-      if (screen === "question" && isVideoQuestion) {
+      if (screen === "question" && isMediaWithoutTimer) {
         return;
       }
 
@@ -447,7 +454,7 @@ function Game() {
         clearInterval(timerRef.current);
       }
     };
-  }, [screen, modalResult, isSubmitting, isVideoQuestion]);
+  }, [screen, modalResult, isSubmitting, isMediaWithoutTimer]);
 
   // Handlers
   const handleSelectQuestion = (q: Question) => {
@@ -470,7 +477,7 @@ function Game() {
   };
 
   const handleTimeOut = async () => {
-    if (!activeQuestion || isSubmitting || isVideoQuestion) return;
+    if (!activeQuestion || isSubmitting || isMediaWithoutTimer) return;
     setIsSubmitting(true);
     const userId = user?.tg_id ?? user?.user_id;
 
@@ -979,7 +986,7 @@ function Game() {
             <div className="game__question_top">
               <div
                 className={`game__question_top_badge ${
-                  isVideoQuestion ? "game__question_top_badge--no-timer" : ""
+                  isMediaWithoutTimer ? "game__question_top_badge--no-timer" : ""
                 }`}
               >
                 <div className="game__question_top_badge_theme-cost">
@@ -990,13 +997,13 @@ function Game() {
                     {activeQuestion.value}
                   </div>
                 </div>
-                {!isVideoQuestion && (
+                {!isMediaWithoutTimer && (
                   <div className="game__question_top_badge_timer">
                     <span className="game__question_timer_text">{timer}&nbsp;сек</span>
                   </div>
                 )}
               </div>
-              {!isVideoQuestion && (
+              {!isMediaWithoutTimer && (
                 <div className="game__question_timer_bar">
                   <div
                     className="game__question_timer_fill"
@@ -1059,6 +1066,15 @@ function Game() {
                         СМОТРЕТЬ
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {isAudioQuestion && activeQuestion.media_url && (
+                  <div className="game__question_media_wrap game__question_media_wrap--audio">
+                    <AudioPlayer
+                      src={normalizeMediaUrl(activeQuestion.media_url)}
+                      isPaused={Boolean(modalResult)}
+                    />
                   </div>
                 )}
               </div>

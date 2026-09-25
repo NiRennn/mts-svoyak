@@ -7,7 +7,7 @@ export interface Question {
   is_modifier?: boolean;
   modifier_value?: number;
   timer_sec?: number;
-  media_type?: "text" | "image" | "video" | string;
+  media_type?: "text" | "image" | "video" | "audio" | string;
   media_url?: string;
 }
 

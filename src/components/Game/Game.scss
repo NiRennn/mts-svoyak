@@ -697,6 +697,14 @@ body.is-desktop .game__board_wrap_logo {
       }
     }
   }
+
+  &--audio {
+    height: auto;
+    min-height: 80px;
+    background: transparent;
+    padding: 0;
+    overflow: visible;
+  }
 }
 
 .game__question_actions {
