@@ -1,5 +1,5 @@
 import "./Info.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import appRoutes from "../../routes/routes";
 import { useAppStore } from "../../store/appStore";
@@ -147,6 +147,86 @@ function Info() {
     };
   }, [navigate, isQualifiedUser]);
 
+  // Drag-to-scroll for prizes slider
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const velocityRef = useRef(0);
+  const [isSliderDragging, setIsSliderDragging] = useState(false);
+
+  const handleSliderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    isDraggingRef.current = true;
+    setIsSliderDragging(true);
+
+    startXRef.current = e.pageX;
+    scrollLeftRef.current = slider.scrollLeft;
+
+    lastXRef.current = e.pageX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
+
+    slider.style.scrollSnapType = "none";
+    slider.style.scrollBehavior = "auto";
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current || !sliderRef.current) return;
+      e.preventDefault();
+
+      const currentX = e.pageX;
+      const dx = currentX - startXRef.current;
+      sliderRef.current.scrollLeft = scrollLeftRef.current - dx;
+
+      const now = performance.now();
+      const dt = now - lastTimeRef.current;
+      if (dt > 10) {
+        velocityRef.current = (currentX - lastXRef.current) / dt;
+        lastXRef.current = currentX;
+        lastTimeRef.current = now;
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      setIsSliderDragging(false);
+
+      const slider = sliderRef.current;
+      if (!slider) return;
+
+      const velocity = velocityRef.current;
+      if (Math.abs(velocity) > 0.2) {
+        const momentum = -velocity * 180;
+        slider.scrollBy({ left: momentum, behavior: "smooth" });
+      }
+
+      setTimeout(() => {
+        if (sliderRef.current) {
+          sliderRef.current.style.scrollSnapType = "";
+          sliderRef.current.style.scrollBehavior = "";
+        }
+      }, 50);
+    };
+
+    if (isSliderDragging) {
+      window.addEventListener("mousemove", handleMouseMove, { passive: false });
+      window.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isSliderDragging]);
+
   const handleToggleFaq = (id: number) => {
     setOpenedFaqId((prev) => (prev === id ? 0 : id));
   };
@@ -274,7 +354,13 @@ function Info() {
               выиграть
             </h2>
 
-            <div className="info__scroll_mid_prizes_slider">
+            <div
+              ref={sliderRef}
+              className={`info__scroll_mid_prizes_slider ${
+                isSliderDragging ? "info__scroll_mid_prizes_slider--dragging" : ""
+              }`}
+              onMouseDown={handleSliderMouseDown}
+            >
               {prizes.map((prize) => (
                 <div
                   className={`slider_item ${

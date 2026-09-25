@@ -304,6 +304,20 @@ body.is-desktop .info__scroll {
 
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &--dragging {
+    cursor: grabbing;
+    scroll-snap-type: none !important;
+    scroll-behavior: auto !important;
+
+    .slider_item {
+      pointer-events: none;
+    }
+  }
 }
 
 .info__scroll_mid_prizes_slider::-webkit-scrollbar {
@@ -327,12 +341,17 @@ body.is-desktop .info__scroll {
 
   scroll-snap-align: start;
   overflow: visible;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .slider_item_img {
   position: absolute;
   object-fit: contain;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .smart {
