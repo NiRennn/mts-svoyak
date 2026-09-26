@@ -1,18 +1,23 @@
-const isDev = import.meta.env.DEV;
+const isLocal =
+  Boolean(import.meta.env.DEV) ||
+  (typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname.endsWith(".localhost")));
 
-const DEV_TG_INIT_DATA = isDev
-  ? String(import.meta.env.VITE_DEV_TG_INIT_DATA ?? "")
-  : "";
+const DEV_TG_INIT_DATA = String(import.meta.env.VITE_DEV_TG_INIT_DATA ?? "").trim();
 
-const DEV_TG_USER_ID = isDev
-  ? Number(import.meta.env.VITE_DEV_TG_USER_ID)
-  : NaN;
+const DEV_TG_USER_ID = Number(import.meta.env.VITE_DEV_TG_USER_ID);
 
 export const getTelegramWebApp = () => {
   return (window as any)?.Telegram?.WebApp;
 };
 
 export const getTelegramInitData = (): string => {
+  if (isLocal && DEV_TG_INIT_DATA) {
+    return DEV_TG_INIT_DATA;
+  }
+
   const tg = getTelegramWebApp();
 
   const realInitData = tg?.initData ?? "";
@@ -38,6 +43,22 @@ export const getTelegramAuthHeaders = () => {
 
 export const getEffectiveUserId = (): number | null => {
   try {
+    if (isLocal) {
+      if (Number.isFinite(DEV_TG_USER_ID) && DEV_TG_USER_ID > 0) {
+        return DEV_TG_USER_ID;
+      }
+      if (DEV_TG_INIT_DATA) {
+        try {
+          const params = new URLSearchParams(DEV_TG_INIT_DATA);
+          const userStr = params.get("user");
+          if (userStr) {
+            const parsedUser = JSON.parse(userStr);
+            if (parsedUser?.id) return Number(parsedUser.id);
+          }
+        } catch {}
+      }
+    }
+
     const tg = getTelegramWebApp();
 
     const idFromTelegram =
@@ -59,7 +80,7 @@ export const getEffectiveUserId = (): number | null => {
       return idFromQuery;
     }
 
-    if (Number.isFinite(DEV_TG_USER_ID)) {
+    if (Number.isFinite(DEV_TG_USER_ID) && DEV_TG_USER_ID > 0) {
       return DEV_TG_USER_ID;
     }
 

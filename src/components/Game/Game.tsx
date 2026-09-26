@@ -266,17 +266,9 @@ function Game() {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const modalVideoRef = useRef<HTMLVideoElement | null>(null);
+  const questionVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
-
-  const handleCloseVideoModal = () => {
-    if (modalVideoRef.current) {
-      modalVideoRef.current.pause();
-    }
-    setIsVideoModalOpen(false);
-  };
 
   const handleCloseImageModal = () => {
     setIsImageModalOpen(false);
@@ -289,12 +281,33 @@ function Game() {
   const isMediaWithoutTimer = isVideoQuestion || isAudioQuestion;
   const hasMedia = isVideoQuestion || isImageQuestion || isAudioQuestion;
 
+  // Autoplay video question immediately when question opens
+  useEffect(() => {
+    if (screen === "question" && isVideoQuestion && questionVideoRef.current) {
+      const video = questionVideoRef.current;
+      video.currentTime = 0;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Video autoplay prevented by browser policy:", err);
+        });
+      }
+    }
+  }, [screen, isVideoQuestion, activeQuestion?.id]);
+
+  // Pause video if modal result opens
+  useEffect(() => {
+    if (modalResult && questionVideoRef.current) {
+      questionVideoRef.current.pause();
+    }
+  }, [modalResult]);
+
   // Preload and decode critical modal host images immediately on Game mount
   useEffect(() => {
     preloadImageSrcs([valid, invalid, timeHost, modHost]);
   }, []);
 
-  // Telegram BackButton support for question selection board and media modals
+  // Telegram BackButton support for question selection board and image modal
   useEffect(() => {
     const tg = (window as any)?.Telegram?.WebApp;
     const backButton = tg?.BackButton;
@@ -302,10 +315,6 @@ function Game() {
     if (!backButton) return;
 
     const handleTelegramBack = () => {
-      if (isVideoModalOpen) {
-        handleCloseVideoModal();
-        return;
-      }
       if (isImageModalOpen) {
         handleCloseImageModal();
         return;
@@ -313,7 +322,7 @@ function Game() {
       navigate(appRoutes.MENU, { replace: true });
     };
 
-    if (isVideoModalOpen || isImageModalOpen) {
+    if (isImageModalOpen) {
       backButton.show();
       backButton.onClick(handleTelegramBack);
     } else if (screen === "board") {
@@ -328,7 +337,7 @@ function Game() {
       backButton.offClick(handleTelegramBack);
       backButton.hide();
     };
-  }, [screen, isVideoModalOpen, isImageModalOpen, navigate]);
+  }, [screen, isImageModalOpen, navigate]);
 
   // Group questions by topic for the current round from store
   const currentRoundThemes = storeThemes.filter((t) => t.round === round);
@@ -462,7 +471,7 @@ function Game() {
     setActiveQuestion(q);
     setIsInputActive(false);
     setUserAnswer("");
-    handleCloseVideoModal();
+    questionVideoRef.current?.pause();
     handleCloseImageModal();
     setTimer(q.timer_sec || QUESTION_TIMER_SECONDS);
     // setTimer(QUESTION_TIMER_SECONDS);
@@ -518,7 +527,7 @@ function Game() {
   const handlePass = async () => {
     if (!activeQuestion || isSubmitting || Boolean(modalResult)) return;
     inputRef.current?.blur();
-    handleCloseVideoModal();
+    questionVideoRef.current?.pause();
     if (timerRef.current) clearInterval(timerRef.current);
 
     setIsSubmitting(true);
@@ -577,7 +586,7 @@ function Game() {
     if (!activeQuestion || !userAnswer.trim() || isSubmitting || Boolean(modalResult)) return;
 
     inputRef.current?.blur();
-    handleCloseVideoModal();
+    questionVideoRef.current?.pause();
     if (timerRef.current) clearInterval(timerRef.current);
 
     setIsSubmitting(true);
@@ -747,7 +756,7 @@ function Game() {
   };
 
   const handleModalContinue = () => {
-    handleCloseVideoModal();
+    questionVideoRef.current?.pause();
     setModalResult(null);
     setModalFeedbackText("");
     setActiveQuestion(null);
@@ -1025,15 +1034,17 @@ function Game() {
               <div
                 className={`game__question_text_wrapper ${
                   hasMedia ? "game__question_text_wrapper--has-media" : ""
-                }`}
+                } ${isVideoQuestion ? "game__question_text_wrapper--video" : ""}`}
               >
-                <p
-                  className={`game__question_text ${
-                    hasMedia ? "game__question_text--has-media" : ""
-                  }`}
-                >
-                  {formatNbsp(activeQuestion.question)}
-                </p>
+                {!isVideoQuestion && (
+                  <p
+                    className={`game__question_text ${
+                      hasMedia ? "game__question_text--has-media" : ""
+                    }`}
+                  >
+                    {formatNbsp(activeQuestion.question)}
+                  </p>
+                )}
 
                 {isImageQuestion && activeQuestion.media_url && (
                   <div
@@ -1051,21 +1062,14 @@ function Game() {
                 {isVideoQuestion && activeQuestion.media_url && (
                   <div className="game__question_media_wrap game__question_media_wrap--video">
                     <video
-                      src={`${normalizeMediaUrl(activeQuestion.media_url)}#t=0.001`}
-                      className="game__question_video_preview"
-                      muted
+                      ref={questionVideoRef}
+                      src={normalizeMediaUrl(activeQuestion.media_url)}
+                      className="game__question_video"
+                      autoPlay
                       playsInline
-                      preload="metadata"
+                      controls
+                      preload="auto"
                     />
-                    <div className="game__question_video_overlay">
-                      <button
-                        type="button"
-                        className="game__question_video_btn"
-                        onClick={() => setIsVideoModalOpen(true)}
-                      >
-                        СМОТРЕТЬ
-                      </button>
-                    </div>
                   </div>
                 )}
 
@@ -1387,37 +1391,6 @@ function Game() {
           </div>
         )}
 
-        {/* Fullscreen Video Player Modal */}
-        {isVideoModalOpen && activeQuestion && activeQuestion.media_url && (
-          <div
-            className="game__video_modal_overlay"
-            onClick={handleCloseVideoModal}
-          >
-            <div
-              className="game__video_modal_content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="game__video_modal_player_wrap">
-                <video
-                  ref={modalVideoRef}
-                  src={normalizeMediaUrl(activeQuestion.media_url)}
-                  className="game__video_modal_player"
-                  controls
-                  autoPlay
-                  playsInline
-                />
-              </div>
-
-              <button
-                type="button"
-                className="game__video_modal_close_btn"
-                onClick={handleCloseVideoModal}
-              >
-                ЗАКРЫТЬ
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Fullscreen Image Modal */}
         {isImageModalOpen && activeQuestion && activeQuestion.media_url && (
