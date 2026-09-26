@@ -281,16 +281,41 @@ function Game() {
   const isMediaWithoutTimer = isVideoQuestion || isAudioQuestion;
   const hasMedia = isVideoQuestion || isImageQuestion || isAudioQuestion;
 
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+
+  const toggleVideoPlay = () => {
+    if (!questionVideoRef.current) return;
+    if (questionVideoRef.current.paused) {
+      questionVideoRef.current
+        .play()
+        .then(() => setIsVideoPaused(false))
+        .catch(() => {});
+    } else {
+      questionVideoRef.current.pause();
+      setIsVideoPaused(true);
+    }
+  };
+
   // Autoplay video question immediately when question opens
   useEffect(() => {
     if (screen === "question" && isVideoQuestion && questionVideoRef.current) {
       const video = questionVideoRef.current;
       video.currentTime = 0;
+      setIsVideoPaused(false);
       const playPromise = video.play();
       if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          console.warn("Video autoplay prevented by browser policy:", err);
-        });
+        playPromise
+          .then(() => setIsVideoPaused(false))
+          .catch(() => {
+            // Fallback: try muted autoplay if audio policy blocked it
+            video.muted = true;
+            video
+              .play()
+              .then(() => setIsVideoPaused(false))
+              .catch(() => {
+                setIsVideoPaused(true);
+              });
+          });
       }
     }
   }, [screen, isVideoQuestion, activeQuestion?.id]);
@@ -299,6 +324,7 @@ function Game() {
   useEffect(() => {
     if (modalResult && questionVideoRef.current) {
       questionVideoRef.current.pause();
+      setIsVideoPaused(true);
     }
   }, [modalResult]);
 
@@ -1060,16 +1086,30 @@ function Game() {
                 )}
 
                 {isVideoQuestion && activeQuestion.media_url && (
-                  <div className="game__question_media_wrap game__question_media_wrap--video">
+                  <div
+                    className="game__question_media_wrap game__question_media_wrap--video"
+                    onClick={toggleVideoPlay}
+                  >
                     <video
                       ref={questionVideoRef}
                       src={normalizeMediaUrl(activeQuestion.media_url)}
                       className="game__question_video"
                       autoPlay
                       playsInline
-                      controls
+                      loop
                       preload="auto"
+                      onPlay={() => setIsVideoPaused(false)}
+                      onPause={() => setIsVideoPaused(true)}
                     />
+                    {isVideoPaused && (
+                      <div className="game__question_video_play_overlay">
+                        <div className="game__question_video_play_icon">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
