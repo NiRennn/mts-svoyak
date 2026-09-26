@@ -1055,6 +1055,7 @@ function Game() {
                       className="game__question_video_preview"
                       muted
                       playsInline
+                      autoPlay
                       preload="metadata"
                     />
                     <div className="game__question_video_overlay">
