@@ -1053,9 +1053,8 @@ function Game() {
                     <video
                       src={`${normalizeMediaUrl(activeQuestion.media_url)}#t=0.001`}
                       className="game__question_video_preview"
-                      
+                      muted
                       playsInline
-                      autoPlay
                       preload="metadata"
                     />
                     <div className="game__question_video_overlay">
