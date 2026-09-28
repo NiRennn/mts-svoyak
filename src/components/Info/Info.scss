@@ -182,6 +182,7 @@ body.is-desktop .info__scroll {
   position: absolute;
   right: 20px;
   bottom: 10px;
+  pointer-events: none;
 }
 
 .bubble_back-re {

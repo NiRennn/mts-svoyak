@@ -200,7 +200,7 @@ function Info() {
       setIsSliderDragging(false);
 
       const slider = sliderRef.current;
-      if (!slider) return;
+      if (!slider) return; 
 
       const velocity = velocityRef.current;
       if (Math.abs(velocity) > 0.2) {
