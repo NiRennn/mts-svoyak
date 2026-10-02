@@ -257,6 +257,7 @@ body.is-desktop .info__scroll {
   cursor: pointer;
   transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
 
+
   &:active {
     transform: scale(0.97);
     opacity: 0.92;
